@@ -115,7 +115,7 @@ export default function Layout({ children }) {
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Legal</h4>
+              <h4 className="font-semibold mb-4">Popular Cities</h4>
               <ul className="space-y-2 text-gray-300">
                 <li><Link href="/austin" className="hover:text-texas-gold">Austin</Link></li>
                 <li><Link href="/dallas" className="hover:text-texas-gold">Dallas</Link></li>
@@ -126,7 +126,7 @@ export default function Layout({ children }) {
             </div>
 
             <div>  
-              <h4 className="font-semibold mb-4">Popular Cities</h4>
+              <h4 className="font-semibold mb-4">Legal</h4>
               <ul className="space-y-2 text-gray-300">
                 <li><Link href="/privacy" className="hover:text-texas-gold">Privacy Policy</Link></li>
                 <li><Link href="/terms" className="hover:text-texas-gold">Terms of Service</Link></li>
