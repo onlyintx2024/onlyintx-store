@@ -29,7 +29,7 @@ export default function Layout({ children }) {
               <Link href="/" className="text-2xl font-bold logo-style-1">
                 <span className="text-texas-gold">Only</span>
                 <span className="text-white">In</span>
-                <span className="text-texas-blue">TX</span>
+                <span className="text-texas-gold">TX</span>
               </Link>
             </div>
             
