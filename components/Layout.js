@@ -26,10 +26,8 @@ export default function Layout({ children }) {
           <div className="flex h-16 justify-between items-center">
             {/* Logo */}
             <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold logo-style-1">
-                <span className="text-texas-gold">Only</span>
-                <span className="text-white">In</span>
-                <span className="text-texas-red">TX</span>
+              <Link href="/" className="text-2xl font-bold logo-style-2">
+                
               </Link>
             </div>
             
