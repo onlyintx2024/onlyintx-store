@@ -26,7 +26,7 @@ export default function Layout({ children }) {
           <div className="flex h-16 justify-between items-center">
             {/* Logo */}
             <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold logo-style-3">
+              <Link href="/" className="text-2xl font-bold logo-style-4">
                 OnlyInTX
               </Link>
             </div>
