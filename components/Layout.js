@@ -92,7 +92,7 @@ export default function Layout({ children }) {
       <main>{children}</main>
       
       {/* Footer */}
-{/* Footer */}
+
       <footer className="bg-gray-900 text-white">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
@@ -124,7 +124,7 @@ export default function Layout({ children }) {
             </div>
 
             <div>  
-              <h4 className="font-semibold mb-4 mt-6">Popular Cities</h4>
+              <h4 className="font-semibold mb-4">Popular Cities</h4>
               <ul className="space-y-2 text-gray-300">
                 <li><Link href="/austin" className="hover:text-texas-gold">Austin</Link></li>
                 <li><Link href="/dallas" className="hover:text-texas-gold">Dallas</Link></li>
