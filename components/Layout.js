@@ -27,7 +27,7 @@ export default function Layout({ children }) {
             {/* Logo */}
             <div className="flex items-center">
               <Link href="/" className="text-2xl font-bold logo-style-2">
-                
+                OnlyInTX
               </Link>
             </div>
             
