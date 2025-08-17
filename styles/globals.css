@@ -21,3 +21,47 @@
     @apply bg-texas-gold text-texas-blue px-6 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition-colors duration-200;
   }
 }
+
+/* Logo Styles */
+.logo-style-1 {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  letter-spacing: 1px;
+  transition: transform 0.3s ease;
+}
+
+.logo-style-1:hover {
+  transform: scale(1.05);
+}
+
+.logo-style-2 {
+  background: linear-gradient(45deg, #BF0A30, #FFB81C, #002868);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 1px;
+  font-weight: 900;
+}
+
+.logo-style-3 {
+  color: #FFB81C;
+  text-shadow: 
+    -1px -1px 0 #002868,
+    1px -1px 0 #002868,
+    -1px 1px 0 #002868,
+    1px 1px 0 #002868,
+    2px 2px 4px rgba(191, 10, 48, 0.5);
+  letter-spacing: 2px;
+  font-weight: 800;
+}
+
+.logo-style-4 {
+  background: linear-gradient(135deg, #FFB81C 0%, #BF0A30 50%, #002868 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  border: 2px solid rgba(255, 184, 28, 0.3);
+  padding: 8px 16px;
+  border-radius: 8px;
+  letter-spacing: 1px;
+}
