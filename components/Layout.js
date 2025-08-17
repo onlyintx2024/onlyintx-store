@@ -120,7 +120,10 @@ export default function Layout({ children }) {
                 <li><Link href="/privacy" className="hover:text-texas-gold">Privacy Policy</Link></li>
                 <li><Link href="/terms" className="hover:text-texas-gold">Terms of Service</Link></li>
               </ul>
-              
+
+            </div>
+
+            <div>  
               <h4 className="font-semibold mb-4 mt-6">Popular Cities</h4>
               <ul className="space-y-2 text-gray-300">
                 <li><Link href="/austin" className="hover:text-texas-gold">Austin</Link></li>
