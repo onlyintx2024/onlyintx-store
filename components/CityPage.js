@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Head from 'next/head'
 import { useState } from 'react'
 
@@ -59,16 +60,31 @@ export default function CityPage({ city }) {
       </Head>
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-texas-blue to-texas-red text-white py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+      <section className="relative h-96 md:h-[500px] overflow-hidden">
+        {/* Hero Image */}
+        <div className="absolute inset-0">
+          <Image
+            src={city.heroImage || '/images/texas-default.jpg'}
+            alt={`${city.name}, Texas skyline and landmarks`}
+            fill
+            priority
+            className="object-cover"
+            sizes="100vw"
+          />
+          {/* Overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/60"></div>
+        </div>
+        
+        {/* Hero Content */}
+        <div className="relative z-10 h-full flex items-center justify-center">
+          <div className="text-center text-white max-w-4xl px-4">
+            <h1 className="text-4xl md:text-6xl font-bold mb-4 drop-shadow-lg">
               {city.name}, Texas
             </h1>
-            <p className="text-xl md:text-2xl mb-6 text-texas-gold">
+            <p className="text-xl md:text-3xl mb-6 text-texas-gold drop-shadow-md font-semibold">
               {city.tagline}
             </p>
-            <p className="text-lg max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl max-w-2xl mx-auto drop-shadow-md">
               {city.description}
             </p>
           </div>
