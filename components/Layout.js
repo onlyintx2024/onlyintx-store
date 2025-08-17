@@ -95,7 +95,7 @@ export default function Layout({ children }) {
 {/* Footer */}
       <footer className="bg-gray-900 text-white">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
             <div className="col-span-1 md:col-span-2">
               <h3 className="text-2xl font-bold text-texas-gold mb-4">OnlyInTX</h3>
               <p className="text-gray-300 mb-4">
