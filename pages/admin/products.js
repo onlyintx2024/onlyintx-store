@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import AdminLayout from '../../components/AdminLayout'
-import { PlusIcon, PencilIcon, TrashIcon, RefreshIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, PencilIcon, TrashIcon, ArrowPathIcon } from '@heroicons/react/24/outline'
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([])
@@ -25,7 +25,9 @@ export default function AdminProducts() {
     try {
       setLoading(true)
       setError(null)
-      const response = await fetch('/api/printify/products')
+      const response = await fetch(`/api/printify/products?t=${Date.now()}`, {
+  cache: 'no-cache'
+})
       const data = await response.json()
       
       if (!response.ok) {
@@ -72,11 +74,26 @@ export default function AdminProducts() {
   }
 
   // Helper function to get lowest variant price
-  const getLowestVariantPrice = (variants) => {
-    if (!variants || variants.length === 0) return 0
-    const prices = variants.map(v => parseFloat(v.price) / 100) // Convert cents to dollars
-    return Math.min(...prices)
-  }
+const getLowestVariantPrice = (variants) => {
+  console.log('Debug variants for lowest price:', variants)
+  
+  if (!variants || variants.length === 0) return 0
+  
+  // Log first few variants to see structure
+  console.log('First 3 variants:', variants.slice(0, 3))
+  
+  const prices = variants.map(v => {
+    const price = parseFloat(v.price) / 100
+    console.log('Variant price conversion:', v.price, '→', price)
+    return price
+  })
+  
+  console.log('All prices:', prices)
+  const lowest = Math.min(...prices)
+  console.log('Lowest price found:', lowest)
+  
+  return lowest
+}
 
   // Helper function to get highest variant price
   const getHighestVariantPrice = (variants) => {
@@ -108,49 +125,49 @@ export default function AdminProducts() {
   }
 
   const updateProductPricing = async (productId, newPricing) => {
-    try {
-      const product = products.find(p => p.id === productId)
-      if (!product) return
+  try {
+    const product = products.find(p => p.id === productId)
+    if (!product) return
 
-      // Update all variants with new pricing
-      const updatedVariants = product.variants.map(variant => ({
-        ...variant,
-        price: Math.round(newPricing * 100) // Convert to cents
-      }))
+    console.log('Updating all variants for product:', productId)
+    
+    // Update ALL variants, not just the first one
+    const updatedVariants = product.variants.map(variant => ({
+      id: variant.id,
+      price: Math.round(newPricing * 100),
+      is_enabled: true
+    }))
 
-      const updateData = {
-        variants: updatedVariants
-      }
+    console.log('Updating', updatedVariants.length, 'variants')
 
-      const response = await fetch('/api/printify/products', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          productId: productId,
-          updateData: updateData
-        })
+    const response = await fetch('/api/printify/products', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        productId: productId,
+        updateData: { variants: updatedVariants }
       })
+    })
 
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.message || 'Failed to update pricing')
-      }
+    const responseData = await response.json()
 
-      // Update local state
-      setProducts(products.map(p => 
-        p.id === productId 
-          ? { ...p, variants: updatedVariants, price: newPricing }
-          : p
-      ))
-
-      alert('Pricing updated successfully!')
-    } catch (error) {
-      console.error('Pricing update error:', error)
-      alert(`Failed to update pricing: ${error.message}`)
+    if (!response.ok) {
+      throw new Error(responseData.message || `API Error: ${response.status}`)
     }
+
+    // Update local state to reflect new pricing
+    setProducts(products.map(p => 
+      p.id === productId 
+        ? { ...p, variants: updatedVariants, price: newPricing }
+        : p
+    ))
+
+    alert('All variants updated successfully!')
+  } catch (error) {
+    console.error('Pricing update error:', error)
+    alert(`Failed to update pricing: ${error.message}`)
   }
+}
 
   const applyBulkPricing = async () => {
     if (!confirm(`Apply $${bulkPricing.basePrice} pricing to all products?`)) return
@@ -211,7 +228,7 @@ export default function AdminProducts() {
               disabled={refreshing}
               className="bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-gray-700 transition-colors disabled:opacity-50"
             >
-              <RefreshIcon className={`h-5 w-5 ${refreshing ? 'animate-spin' : ''}`} />
+              <ArrowPathIcon className={`h-5 w-5 ${refreshing ? 'animate-spin' : ''}`} />
               <span>Refresh</span>
             </button>
             <button
@@ -227,7 +244,7 @@ export default function AdminProducts() {
         {/* Bulk Pricing Controls */}
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-            <CurrencyDollarIcon className="h-6 w-6 mr-2 text-yellow-600" />
+            <span className="h-6 w-6 mr-2 text-yellow-600">💰</span>
             Bulk Pricing Manager
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">

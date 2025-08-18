@@ -38,12 +38,14 @@ export default async function handler(req, res) {
             price: variant.price,
             title: variant.title,
             sku: variant.sku,
-            grams: variant.grams
+            grams: variant.grams,
+            is_enabled: variant.is_enabled
           })) || [],
           blueprint_id: product.blueprint_id,
           shop_id: product.shop_id,
           created_at: product.created_at,
-          updated_at: product.updated_at
+          updated_at: product.updated_at,
+          visible: product.visible
         })) || [];
         
         return res.status(200).json({ 
@@ -73,19 +75,89 @@ export default async function handler(req, res) {
         // Update existing product
         const { productId, updateData } = req.body;
         
+        console.log('Updating product:', productId);
+        console.log('Update data:', JSON.stringify(updateData, null, 2));
+        
+        // First, get the current product to preserve existing data
+        const currentProductResponse = await fetch(`https://api.printify.com/v1/shops/${SHOP_ID}/products/${productId}.json`, {
+          headers
+        });
+        
+        if (!currentProductResponse.ok) {
+          throw new Error('Failed to fetch current product data');
+        }
+        
+        const currentProduct = await currentProductResponse.json();
+        console.log('Current product variants:', currentProduct.variants.length);
+        
+        // Prepare the update payload - only update variants that we're changing
+        const updatePayload = {
+          ...updateData,
+          // Ensure we keep the existing structure
+          variants: updateData.variants?.map(updatedVariant => {
+            const existingVariant = currentProduct.variants.find(v => v.id === updatedVariant.id);
+            return {
+              id: updatedVariant.id,
+              price: updatedVariant.price,
+              is_enabled: updatedVariant.is_enabled !== undefined ? updatedVariant.is_enabled : (existingVariant?.is_enabled || true)
+            };
+          }) || currentProduct.variants
+        };
+        
+        console.log('Final payload to Printify:', JSON.stringify(updatePayload, null, 2));
+        
         const updateResponse = await fetch(`https://api.printify.com/v1/shops/${SHOP_ID}/products/${productId}.json`, {
           method: 'PUT',
           headers,
-          body: JSON.stringify(updateData)
+          body: JSON.stringify(updatePayload)
         });
         
-        const updatedData = await updateResponse.json();
+        const responseText = await updateResponse.text();
+        console.log('Printify response text:', responseText);
+        
+        let updatedData;
+        try {
+          updatedData = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error('Failed to parse Printify response:', parseError);
+          throw new Error(`Invalid response from Printify: ${responseText}`);
+        }
         
         if (!updateResponse.ok) {
-          throw new Error(updatedData.message || 'Failed to update product');
+          console.error('Printify API error:', updatedData);
+          throw new Error(updatedData.message || `Printify API error: ${updateResponse.status}`);
         }
         
         return res.status(200).json(updatedData);
+        case 'PATCH':
+        // Handle special actions like unpublish
+        const { productId: patchProductId, action } = req.body;
+        
+        if (action === 'unpublish') {
+          console.log('Unpublishing product:', patchProductId);
+          
+          const unpublishResponse = await fetch(`https://api.printify.com/v1/shops/${SHOP_ID}/products/${patchProductId}/unpublish.json`, {
+            method: 'POST',
+            headers
+          });
+          
+          const unpublishText = await unpublishResponse.text();
+          console.log('Unpublish response:', unpublishText);
+          
+          if (!unpublishResponse.ok) {
+            let unpublishData;
+            try {
+              unpublishData = JSON.parse(unpublishText);
+            } catch {
+              unpublishData = { message: unpublishText };
+            }
+            throw new Error(unpublishData.message || 'Failed to unpublish product');
+          }
+          
+          return res.status(200).json({ success: true, message: 'Product unpublished' });
+        }
+        
+        return res.status(400).json({ error: 'Invalid action' });
 
       case 'DELETE':
         // Delete product
@@ -104,14 +176,15 @@ export default async function handler(req, res) {
         return res.status(200).json({ success: true, message: 'Product deleted' });
 
       default:
-        res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
+        res.setHeader('Allow', ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
         return res.status(405).end(`Method ${req.method} Not Allowed`);
     }
   } catch (error) {
     console.error('Printify Products API Error:', error);
     return res.status(500).json({ 
       error: 'Internal server error',
-      message: error.message 
+      message: error.message,
+      stack: error.stack
     });
   }
 }
