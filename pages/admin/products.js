@@ -75,24 +75,16 @@ export default function AdminProducts() {
 
   // Helper function to get lowest variant price
 const getLowestVariantPrice = (variants) => {
-  console.log('Debug variants for lowest price:', variants)
-  
   if (!variants || variants.length === 0) return 0
   
-  // Log first few variants to see structure
-  console.log('First 3 variants:', variants.slice(0, 3))
+  // Filter for only enabled variants
+  const enabledVariants = variants.filter(v => v.is_enabled === true)
+  console.log('Enabled variants count:', enabledVariants.length, 'of', variants.length, 'total')
   
-  const prices = variants.map(v => {
-    const price = parseFloat(v.price) / 100
-    console.log('Variant price conversion:', v.price, '→', price)
-    return price
-  })
+  if (enabledVariants.length === 0) return 0
   
-  console.log('All prices:', prices)
-  const lowest = Math.min(...prices)
-  console.log('Lowest price found:', lowest)
-  
-  return lowest
+  const prices = enabledVariants.map(v => parseFloat(v.price) / 100)
+  return Math.min(...prices)
 }
 
   // Helper function to get highest variant price
@@ -338,7 +330,7 @@ const getLowestVariantPrice = (variants) => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {product.variants.length} sizes
+                      {product.variants.filter(v => v.is_enabled === true).length} sizes
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
                       {product.printifyId}
