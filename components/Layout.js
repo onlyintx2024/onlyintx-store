@@ -99,7 +99,11 @@ export default function Layout({ children }) {
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
             <div className="col-span-1 md:col-span-2">
-              <h3 className="text-2xl font-bold text-texas-gold mb-4">OnlyInTX</h3>
+              <h3 className="text-2xl font-bold mb-4 logo-style-1">
+                <span className="text-texas-gold">Only</span>
+                <span className="text-white">In</span>
+                <span className="text-texas-gold">TX</span>
+              </h3>
               <p className="text-gray-300 mb-4">
                 Celebrating the Lone Star State with authentic Texas pride apparel and gifts. 
                 From Austin to El Paso, we've got your Texas city covered.
