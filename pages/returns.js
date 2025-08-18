@@ -178,7 +178,7 @@ export default function Returns() {
                 Contact Us
               </a>
               <a 
-                href="mailto:returns@onlyintx.com" 
+                href="mailto:onliyintx@gmail.com" 
                 className="inline-block bg-texas-blue text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200"
               >
                 Email Returns Team

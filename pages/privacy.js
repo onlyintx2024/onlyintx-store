@@ -122,8 +122,8 @@ export default function Privacy() {
               If you have questions about this privacy policy or our data practices, please contact us:
             </p>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-gray-700 mb-2"><strong>Email:</strong> privacy@onlyintx.com</p>
-              <p className="text-gray-700 mb-2"><strong>General Contact:</strong> hello@onlyintx.com</p>
+              <p className="text-gray-700 mb-2"><strong>Email:</strong> onliyintx@gmail.com</p>
+              <p className="text-gray-700 mb-2"><strong>General Contact:</strong> onliyintx@gmail.com</p>
               <p className="text-gray-700 mb-0"><strong>Contact Form:</strong> <a href="/contact" className="text-texas-blue hover:underline">Visit our contact page</a></p>
             </div>
             
