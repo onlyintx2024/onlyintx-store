@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Layout from '../components/Layout'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -72,10 +73,17 @@ export default function Home() {
             {cities.map((city) => (
               <Link key={city.slug} href={`/${city.slug}`} className="group">
                 <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                  <div className="h-48 bg-gradient-to-br from-texas-blue to-texas-red relative">
-                    <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-10 transition-all duration-300"></div>
+                  <div className="h-48 relative overflow-hidden">
+                    <Image
+                      src={`/images/${city.slug}-card.jpg`}
+                      alt={`${city.name}, Texas`}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-20 transition-all duration-300"></div>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <h3 className="text-white text-2xl font-bold">{city.name}</h3>
+                      <h3 className="text-white text-2xl font-bold drop-shadow-lg">{city.name}</h3>
                     </div>
                   </div>
                   <div className="p-6">
