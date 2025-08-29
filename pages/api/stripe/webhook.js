@@ -83,9 +83,11 @@ const shippingInfo = paymentIntent.shipping || {
     const items = JSON.parse(metadata.items || '[]')
     const customerEmail = metadata.email
     const customerName = metadata.customer
+    const isTestMode = metadata.test_mode === 'true'
     
     console.log('📦 Processing order for:', customerEmail)
     console.log('📦 Items:', items)
+    console.log('🧪 Test mode:', isTestMode)
     
     // Create order object
     const order = {
@@ -122,17 +124,21 @@ const shippingInfo = paymentIntent.shipping || {
       console.error('❌ Error saving to local storage:', saveError)
     }
     
-    // Create orders in Printify for each item
+    // Create orders in Printify for each item (skip if test mode)
     const printifyResults = []
-    for (const item of items) {
-      try {
-        const printifyOrder = await createPrintifyOrder(item, order, shippingInfo)
-        if (printifyOrder) {
-          printifyResults.push(printifyOrder.id)
-          console.log('✅ Printify order created:', printifyOrder.id)
+    if (isTestMode) {
+      console.log('🧪 Test mode active - skipping Printify order creation')
+    } else {
+      for (const item of items) {
+        try {
+          const printifyOrder = await createPrintifyOrder(item, order, shippingInfo)
+          if (printifyOrder) {
+            printifyResults.push(printifyOrder.id)
+            console.log('✅ Printify order created:', printifyOrder.id)
+          }
+        } catch (printifyError) {
+          console.error('❌ Failed to create Printify order for item:', item.id, printifyError)
         }
-      } catch (printifyError) {
-        console.error('❌ Failed to create Printify order for item:', item.id, printifyError)
       }
     }
     
