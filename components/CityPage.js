@@ -94,29 +94,29 @@ export default function CityPage({ city }) {
         
         // Filter products for this city
         const cityProducts = data.products.filter(product => {
-  const matches = product.title.toLowerCase().includes(city.name.toLowerCase())
-  console.log(`Product "${product.title}" matches "${city.name}"?`, matches)
-  return matches
-}).map(product => {
-  // Get the first available color from enabled variants for thumbnail
-  const enabledVariants = product.variants.filter(v => v.is_enabled);
-  const firstColor = enabledVariants.length > 0 ? 
-    (enabledVariants[0].title.split(' / ')[0]?.trim() || 'Default') : 'Default';
-  
-  return {
-    id: product.id,
-    slug: product.slug,
-    name: generateSEOTitle(product.title, city.name),
-    printifyTitle: product.title,
-    price: getLowestVariantPrice(product.variants),
-    description: getProductDescription(product, city.name),
-    image: getColorMockupImage(product.id, firstColor, 'thumb'),
-    fallbackImage: product.images?.[0]?.src || '/images/texas-default.jpg',
-    variants: product.variants.filter(v => v.is_enabled),
-    printifyId: product.id,
-    primaryColor: firstColor
-  };
-})
+          const matches = product.title.toLowerCase().includes(city.name.toLowerCase())
+          console.log(`Product "${product.title}" matches "${city.name}"?`, matches)
+          return matches
+        }).map(product => {
+          // Get the first available color from enabled variants for thumbnail
+          const enabledVariants = product.variants.filter(v => v.is_enabled);
+          const firstColor = enabledVariants.length > 0 ? 
+            (enabledVariants[0].title.split(' / ')[0]?.trim() || 'Default') : 'Default';
+          
+          return {
+            id: product.id,
+            slug: product.slug,
+            name: generateSEOTitle(product.title, city.name),
+            printifyTitle: product.title,
+            price: getLowestVariantPrice(product.variants),
+            description: getProductDescription(product, city.name),
+            image: getColorMockupImage(product.id, firstColor, 'thumb'),
+            fallbackImage: product.images?.[0]?.src || '/images/texas-default.jpg',
+            variants: product.variants.filter(v => v.is_enabled),
+            printifyId: product.id,
+            primaryColor: firstColor
+          };
+        })
         
         console.log('Filtered city products:', cityProducts)
         setProducts(cityProducts)
