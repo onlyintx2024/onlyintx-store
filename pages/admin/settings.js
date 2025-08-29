@@ -5,7 +5,7 @@ export default function AdminSettings() {
   const [settings, setSettings] = useState({
     storeName: 'OnlyInTX',
     storeDescription: 'Authentic Texas designs for every city',
-    contactEmail: 'hello@onlyintx.com',
+    contactEmail: 'onlyintx2024@gmail.com',
     shippingRate: 5.99,
     taxRate: 8.25,
     currency: 'USD',
@@ -18,6 +18,22 @@ export default function AdminSettings() {
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  useEffect(() => {
+  const loadSettings = async () => {
+    try {
+      const response = await fetch('/api/settings');
+      if (response.ok) {
+        const data = await response.json();
+        setSettings(data);
+      }
+    } catch (error) {
+      console.error('Error loading settings:', error);
+    }
+  };
+  
+  loadSettings();
+}, []);
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setSettings(prev => ({
@@ -27,25 +43,34 @@ export default function AdminSettings() {
   };
 
   const handleSaveSettings = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    try {
-      // TODO: Implement settings API endpoint
-      console.log('Saving settings:', settings);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+  e.preventDefault();
+  setLoading(true);
+  
+  try {
+    const response = await fetch('/api/settings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(settings)
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      console.log('Settings saved successfully:', data);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
-    } catch (error) {
-      console.error('Error saving settings:', error);
-      alert('Failed to save settings');
-    } finally {
-      setLoading(false);
+    } else {
+      throw new Error(data.message || 'Failed to save settings');
     }
-  };
+  } catch (error) {
+    console.error('Error saving settings:', error);
+    alert('Failed to save settings: ' + error.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <AdminLayout>
@@ -185,10 +210,11 @@ export default function AdminSettings() {
                   type="password"
                   name="stripeWebhookSecret"
                   id="stripeWebhookSecret"
-                  value={settings.stripeWebhookSecret}
+                  value={settings.stripeWebhookSecret ? '••••••••••••••••' : ''}
                   onChange={handleInputChange}
-                  placeholder="whsec_..."
+                  placeholder="whsec_... (Set in environment variables)"
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
+                  readOnly
                 />
                 <p className="mt-1 text-sm text-gray-500">Required for order webhooks</p>
               </div>

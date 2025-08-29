@@ -1,7 +1,9 @@
 import Image from 'next/image'
 import Head from 'next/head'
+import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useCart } from '../context/CartContext'
+import { getColorMockupImage } from '../utils/mockupMapping'
 const generateSEOTitle = (printifyTitle, cityName) => {
   const title = printifyTitle.toLowerCase()
   
@@ -73,8 +75,6 @@ const generateSEODescription = (productName, cityName) => {
 export default function CityPage({ city }) {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
-  const [selectedProduct, setSelectedProduct] = useState(null)
-  const [selectedSize, setSelectedSize] = useState('')
   const { dispatch } = useCart()
 
   // Load products from Printify filtered by city
@@ -97,16 +97,26 @@ export default function CityPage({ city }) {
   const matches = product.title.toLowerCase().includes(city.name.toLowerCase())
   console.log(`Product "${product.title}" matches "${city.name}"?`, matches)
   return matches
-}).map(product => ({
-  id: product.id,
-  name: generateSEOTitle(product.title, city.name), // ← CHANGED THIS LINE
-  printifyTitle: product.title, // ← KEEP ORIGINAL FOR REFERENCE
-  price: getLowestVariantPrice(product.variants),
-  description: getProductDescription(product, city.name),
-  image: product.images?.[0]?.src || '/images/texas-default.jpg',
-  variants: product.variants.filter(v => v.is_enabled),
-  printifyId: product.id
-}))
+}).map(product => {
+  // Get the first available color from enabled variants for thumbnail
+  const enabledVariants = product.variants.filter(v => v.is_enabled);
+  const firstColor = enabledVariants.length > 0 ? 
+    (enabledVariants[0].title.split(' / ')[0]?.trim() || 'Default') : 'Default';
+  
+  return {
+    id: product.id,
+    slug: product.slug,
+    name: generateSEOTitle(product.title, city.name),
+    printifyTitle: product.title,
+    price: getLowestVariantPrice(product.variants),
+    description: getProductDescription(product, city.name),
+    image: getColorMockupImage(product.id, firstColor, 'thumb'),
+    fallbackImage: product.images?.[0]?.src || '/images/texas-default.jpg',
+    variants: product.variants.filter(v => v.is_enabled),
+    printifyId: product.id,
+    primaryColor: firstColor
+  };
+})
         
         console.log('Filtered city products:', cityProducts)
         setProducts(cityProducts)
@@ -135,47 +145,6 @@ export default function CityPage({ city }) {
     return [...new Set(sizes)].sort()
   }
 
-  const handleAddToCart = (product) => {
-    if (product.variants.length > 1) {
-      setSelectedProduct(product)
-      setSelectedSize('')
-    } else {
-      // Single variant product
-      const variant = product.variants[0]
-      dispatch({
-        type: 'ADD_TO_CART',
-        payload: {
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          size: 'Standard',
-          image: product.image,
-          quantity: 1
-        }
-      })
-      alert('Added to cart!')
-    }
-  }
-
-  const handleSizeSelection = () => {
-    if (!selectedSize || !selectedProduct) return
-
-    dispatch({
-      type: 'ADD_TO_CART',
-      payload: {
-        id: selectedProduct.id,
-        name: selectedProduct.name,
-        price: selectedProduct.price,
-        size: selectedSize,
-        image: selectedProduct.image,
-        quantity: 1
-      }
-    })
-    
-    setSelectedProduct(null)
-    setSelectedSize('')
-    alert('Added to cart!')
-  }
   
   return (
     <>
@@ -278,26 +247,36 @@ export default function CityPage({ city }) {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {products.map((product) => (
                 <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                  <div className="h-80 relative">
-  <Image
-    src={product.image}
-    alt={product.name}
-    fill
-    className="object-contain bg-gray-100"
-    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-  />
-</div>
+                  {/* Clickable Image */}
+                  <Link href={`/product/${product.slug || product.id}`}>
+                    <div className="h-80 relative cursor-pointer">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-contain bg-gray-100 hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          // Fallback to Printify image if custom thumbnail fails
+                          console.log(`Thumbnail failed for ${product.name}, using fallback`);
+                          e.target.src = product.fallbackImage;
+                        }}
+                      />
+                    </div>
+                  </Link>
                   <div className="p-6">
-                    <h3 className="font-semibold text-gray-900 mb-2">{product.name}</h3>
+                    {/* Clickable Title */}
+                    <Link href={`/product/${product.slug || product.id}`}>
+                      <h3 className="font-semibold text-gray-900 mb-2 hover:text-texas-blue cursor-pointer transition-colors duration-200">
+                        {product.name}
+                      </h3>
+                    </Link>
                     <p className="text-sm text-gray-600 mb-4">{product.description}</p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xl font-bold text-texas-blue">${product.price.toFixed(2)}</span>
-                      <button 
-                        onClick={() => handleAddToCart(product)}
-                        className="bg-texas-red text-white px-4 py-2 rounded hover:bg-red-700 transition-colors duration-200"
+                    <div className="text-right">
+                      <Link 
+                        href={`/product/${product.slug || product.id}`}
+                        className="bg-texas-red text-white px-4 py-2 rounded hover:bg-red-700 transition-colors duration-200 inline-block text-center"
                       >
-                        Add to Cart
-                      </button>
+                        View Product
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -307,50 +286,6 @@ export default function CityPage({ city }) {
         </div>
       </section>
 
-      {/* Size Selection Modal */}
-      {selectedProduct && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
-              Select Size for {selectedProduct.name}
-            </h3>
-            <div className="space-y-3">
-              {getUniqueSizes(selectedProduct.variants).map((size) => (
-                <button
-                  key={size}
-                  onClick={() => setSelectedSize(size)}
-                  className={`w-full p-3 border rounded-lg text-left ${
-                    selectedSize === size 
-                      ? 'border-texas-blue bg-blue-50' 
-                      : 'border-gray-300 hover:border-gray-400'
-                  }`}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-            <div className="flex space-x-3 mt-6">
-              <button
-                onClick={handleSizeSelection}
-                disabled={!selectedSize}
-                className={`flex-1 py-2 px-4 rounded-lg ${
-                  selectedSize
-                    ? 'bg-texas-blue text-white hover:bg-blue-700'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-              >
-                Add to Cart
-              </button>
-              <button
-                onClick={() => setSelectedProduct(null)}
-                className="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
       
       {/* Landmarks Section */}
       <section className="py-16 bg-gray-50">

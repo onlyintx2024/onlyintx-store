@@ -1,183 +1,218 @@
-import { useState, useEffect } from 'react'
 import AdminLayout from '../../components/AdminLayout'
+import Link from 'next/link'
+import { useState, useEffect } from 'react'
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
-    totalProducts: 12,
-    totalOrders: 47,
-    totalRevenue: 1847.53,
-    pendingOrders: 3
+    totalProducts: 0,
+    totalOrders: 0,
+    revenue: 0,
+    visitors: 0
   })
-  
-  const [recentOrders] = useState([
-    { id: '1001', customer: 'John Smith', city: 'Austin', total: 29.99, status: 'Processing' },
-    { id: '1002', customer: 'Sarah Johnson', city: 'Dallas', total: 54.98, status: 'Shipped' },
-    { id: '1003', customer: 'Mike Wilson', city: 'Houston', total: 39.99, status: 'Pending' },
-    { id: '1004', customer: 'Lisa Garcia', city: 'San Antonio', total: 24.99, status: 'Shipped' },
-    { id: '1005', customer: 'David Brown', city: 'Austin', total: 89.97, status: 'Processing' },
-  ])
-  
+
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    // Fetch real order data
+    fetch('/api/orders')
+      .then(res => res.json())
+      .then(data => {
+        const orders = data.orders || []
+        const totalRevenue = orders.reduce((sum, order) => sum + (order.amount || 0), 0)
+        const todayOrders = orders.filter(order => {
+          const orderDate = new Date(order.createdAt).toDateString()
+          const today = new Date().toDateString()
+          return orderDate === today
+        }).length
+        
+        setStats({
+          totalOrders: orders.length,
+          totalRevenue: totalRevenue,
+          activeProducts: 4, // You can fetch from Printify API if needed
+          todayOrders: todayOrders
+        })
+        setLoading(false) // ✅ FIX: Set loading to false on success
+      })
+      .catch(err => {
+        console.error('Error fetching stats:', err)
+        setLoading(false) // ✅ FIX: Also set loading to false on error
+      })
+  }, [])
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <span className="ml-2">Loading dashboard...</span>
+        </div>
+      </AdminLayout>
+    )
+  }
+
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        {/* Header */}
+        <div>
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <div className="text-sm text-gray-500">
-            Welcome back! Here's what's happening with your Texas store.
-          </div>
+          <p className="mt-2 text-gray-600">Welcome to your OnlyInTX admin dashboard</p>
         </div>
-        
+
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-texas-blue rounded-md flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">P</span>
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-5">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+                    <span className="text-white text-sm font-bold">P</span>
+                  </div>
                 </div>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-sm font-medium text-gray-500">Total Products</h3>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalProducts}</p>
+                <div className="ml-5 w-0 flex-1">
+                  <dl>
+                    <dt className="text-sm font-medium text-gray-500 truncate">
+                      Active Products
+                    </dt>
+                    <dd className="text-lg font-medium text-gray-900">
+                      {stats.activeProducts}
+                    </dd>
+                  </dl>
+                </div>
               </div>
             </div>
           </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-texas-gold rounded-md flex items-center justify-center">
-                  <span className="text-texas-blue font-bold text-sm">O</span>
+
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-5">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
+                    <span className="text-white text-sm font-bold">O</span>
+                  </div>
                 </div>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-sm font-medium text-gray-500">Total Orders</h3>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalOrders}</p>
+                <div className="ml-5 w-0 flex-1">
+                  <dl>
+                    <dt className="text-sm font-medium text-gray-500 truncate">
+                      Total Orders
+                    </dt>
+                    <dd className="text-lg font-medium text-gray-900">
+                      {stats.totalOrders}
+                    </dd>
+                  </dl>
+                </div>
               </div>
             </div>
           </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">$</span>
+
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-5">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
+                    <span className="text-white text-sm font-bold">$</span>
+                  </div>
                 </div>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-sm font-medium text-gray-500">Total Revenue</h3>
-                <p className="text-2xl font-bold text-gray-900">${stats.totalRevenue.toLocaleString()}</p>
+                <div className="ml-5 w-0 flex-1">
+                  <dl>
+                    <dt className="text-sm font-medium text-gray-500 truncate">
+                      Total Revenue
+                    </dt>
+                    <dd className="text-lg font-medium text-gray-900">
+                      ${stats.totalRevenue.toLocaleString()}
+                    </dd>
+                  </dl>
+                </div>
               </div>
             </div>
           </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-texas-red rounded-md flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">!</span>
+
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-5">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
+                    <span className="text-white text-sm font-bold">T</span>
+                  </div>
                 </div>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-sm font-medium text-gray-500">Pending Orders</h3>
-                <p className="text-2xl font-bold text-gray-900">{stats.pendingOrders}</p>
+                <div className="ml-5 w-0 flex-1">
+                  <dl>
+                    <dt className="text-sm font-medium text-gray-500 truncate">
+                      Today's Orders
+                    </dt>
+                    <dd className="text-lg font-medium text-gray-900">
+                      {stats.todayOrders}
+                    </dd>
+                  </dl>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        
-        {/* Recent Orders */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900">Recent Orders</h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">City</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {recentOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{order.id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.customer}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.city}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${order.total}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        order.status === 'Shipped' ? 'bg-green-100 text-green-800' :
-                        order.status === 'Processing' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
-                        {order.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-        
+
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Quick Actions</h3>
+        <div className="bg-white shadow rounded-lg">
+          <div className="px-4 py-5 sm:p-6">
+            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+              Quick Actions
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Link
+                href="/admin/products"
+                className="bg-blue-50 border border-blue-200 rounded-lg p-4 hover:bg-blue-100 transition-colors"
+              >
+                <h4 className="font-semibold text-blue-900">Manage Products</h4>
+                <p className="text-sm text-blue-700">Add, edit, or remove products from your store</p>
+              </Link>
+              
+              <Link
+                href="/admin/orders"
+                className="bg-green-50 border border-green-200 rounded-lg p-4 hover:bg-green-100 transition-colors"
+              >
+                <h4 className="font-semibold text-green-900">View Orders</h4>
+                <p className="text-sm text-green-700">Monitor and manage customer orders</p>
+              </Link>
+              
+              <Link
+                href="/admin/settings"
+                className="bg-purple-50 border border-purple-200 rounded-lg p-4 hover:bg-purple-100 transition-colors"
+              >
+                <h4 className="font-semibold text-purple-900">Settings</h4>
+                <p className="text-sm text-purple-700">Configure your store settings</p>
+              </Link>
+
+              <Link
+                href="/admin/mockup-guide"
+                className="bg-orange-50 border border-orange-200 rounded-lg p-4 hover:bg-orange-100 transition-colors"
+              >
+                <h4 className="font-semibold text-orange-900">Mockup Guide</h4>
+                <p className="text-sm text-orange-700">Visual guide for organizing product mockups</p>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Activity */}
+        <div className="bg-white shadow rounded-lg">
+          <div className="px-4 py-5 sm:p-6">
+            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+              Recent Activity
+            </h3>
             <div className="space-y-3">
-              <button className="w-full text-left px-4 py-2 text-sm bg-texas-blue text-white rounded hover:bg-blue-700">
-                Add New Product
-              </button>
-              <button className="w-full text-left px-4 py-2 text-sm bg-texas-gold text-texas-blue rounded hover:bg-yellow-400">
-                View All Orders
-              </button>
-              <button className="w-full text-left px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200">
-                Export Sales Data
-              </button>
-            </div>
-          </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Top Cities</h3>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Austin</span>
-                <span className="text-sm font-medium">18 orders</span>
+              <div className="flex items-center text-sm">
+                <div className="w-2 h-2 bg-green-400 rounded-full mr-3"></div>
+                <span className="text-gray-600">New order #{stats.totalOrders > 0 ? stats.totalOrders : '1001'} received</span>
+                <span className="ml-auto text-gray-400">2 hours ago</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Dallas</span>
-                <span className="text-sm font-medium">14 orders</span>
+              <div className="flex items-center text-sm">
+                <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
+                <span className="text-gray-600">Product "Austin Tee" updated</span>
+                <span className="ml-auto text-gray-400">4 hours ago</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Houston</span>
-                <span className="text-sm font-medium">10 orders</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">San Antonio</span>
-                <span className="text-sm font-medium">5 orders</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">This Week</h3>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">New Orders</span>
-                <span className="text-sm font-medium text-green-600">+12</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Revenue</span>
-                <span className="text-sm font-medium text-green-600">+$347.89</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">New Customers</span>
-                <span className="text-sm font-medium text-green-600">+8</span>
+              <div className="flex items-center text-sm">
+                <div className="w-2 h-2 bg-yellow-400 rounded-full mr-3"></div>
+                <span className="text-gray-600">Settings updated</span>
+                <span className="ml-auto text-gray-400">6 hours ago</span>
               </div>
             </div>
           </div>

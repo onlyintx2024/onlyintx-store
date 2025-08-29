@@ -1,0 +1,15 @@
+{
+  "companyName": "OnlyInTX",
+  "email": "onlyintx2024@gmail.com",
+  "phone": "+1 (555) 123-4567",
+  "address": "123 Texas St, Austin, TX 78701",
+  "sendAutomaticMessages": true,
+  "enableNotifications": true,
+  "currency": "USD",
+  "timezone": "America/Chicago",
+  "updatedAt": "2025-08-27T05:05:48.205Z",
+  "contactEmail": "onlyintx2024@gmail.com",
+  "emailNotifications": false,
+  "shippingRate": "4.99",
+  "taxRate": "0"
+}

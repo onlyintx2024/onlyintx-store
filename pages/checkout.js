@@ -12,6 +12,7 @@ function CheckoutForm({ total, formData, setFormData }) {
   const { state, dispatch } = useCart()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [testMode, setTestMode] = useState(true) // Toggle for testing
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -26,19 +27,31 @@ function CheckoutForm({ total, formData, setFormData }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: total,
+          amount: testMode ? 0.50 : total, // Use 50 cents in test mode
+          testMode: testMode, // Pass test mode flag
           metadata: {
             items: JSON.stringify(state.items),
             customer: `${formData.firstName} ${formData.lastName}`,
-            email: formData.email
+            email: formData.email,
+            address: formData.address,
+            city: formData.city,
+            state: formData.state,
+            zipCode: formData.zipCode
           }
         }),
       })
 
-      const { clientSecret } = await response.json()
+      // Add error checking
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('Payment intent error:', errorText)
+        throw new Error(`Payment failed: ${response.status}`)
+      }
 
-      // Confirm payment
-      const result = await stripe.confirmCardPayment(clientSecret, {
+      const data = await response.json()
+
+      // Confirm payment with the client secret from the response
+      const result = await stripe.confirmCardPayment(data.clientSecret, {
         payment_method: {
           card: elements.getElement(CardElement),
           billing_details: {
@@ -58,8 +71,7 @@ function CheckoutForm({ total, formData, setFormData }) {
         setError(result.error.message)
       } else {
         // Payment successful
-        dispatch({ type: 'CLEAR_CART' })
-        alert('Payment successful! Order confirmed.')
+        window.location.href = '/checkout-success'
       }
     } catch (err) {
       setError(err.message)
@@ -70,6 +82,25 @@ function CheckoutForm({ total, formData, setFormData }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* TEST MODE TOGGLE - REMOVE IN PRODUCTION */}
+      <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-bold">🧪 Test Mode Active</p>
+            <p className="text-sm">Payment will be $0.50 for testing. Toggle off for real payments.</p>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input 
+              type="checkbox" 
+              checked={testMode}
+              onChange={(e) => setTestMode(e.target.checked)}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          </label>
+        </div>
+      </div>
+
       {/* Existing form fields... */}
       <div>
         <label className="block text-sm font-medium text-gray-700">Email</label>
@@ -183,7 +214,7 @@ function CheckoutForm({ total, formData, setFormData }) {
             : 'bg-texas-blue hover:bg-blue-700'
         } text-white transition-colors duration-200`}
       >
-        {isLoading ? 'Processing...' : `Pay $${total.toFixed(2)}`}
+        {isLoading ? 'Processing...' : `Pay $${(testMode ? 0.50 : total).toFixed(2)}`}
       </button>
     </form>
   )
@@ -201,25 +232,26 @@ export default function Checkout() {
     zipCode: ''
   })
   
-  const subtotal = state.items.reduce((total, item) => total + (item.price * item.quantity), 0)
+  const subtotal = state.items.reduce((total, item) => total + ((item.price / 100) * item.quantity), 0)
   const shipping = subtotal > 50 ? 0 : 7.99
   const total = subtotal + shipping
+  
   // Add this check
-if (state.items.length === 0) {
-  return (
-    <Layout>
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="mx-auto max-w-4xl px-4 text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Your cart is empty</h1>
-          <p className="text-gray-600 mb-8">Add some products to your cart before checking out.</p>
-          <a href="/" className="bg-texas-blue text-white px-6 py-3 rounded-lg hover:bg-blue-700">
-            Continue Shopping
-          </a>
+  if (state.items.length === 0) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-gray-50 py-8">
+          <div className="mx-auto max-w-4xl px-4 text-center">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">Your cart is empty</h1>
+            <p className="text-gray-600 mb-8">Add some products to your cart before checking out.</p>
+            <a href="/" className="bg-texas-blue text-white px-6 py-3 rounded-lg hover:bg-blue-700">
+              Continue Shopping
+            </a>
+          </div>
         </div>
-      </div>
-    </Layout>
-  )
-}
+      </Layout>
+    )
+  }
   
   return (
     <Layout>
@@ -246,12 +278,14 @@ if (state.items.length === 0) {
               <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
               
               {state.items.map((item) => (
-                <div key={`${item.id}-${item.size}`} className="flex justify-between items-center py-3 border-b">
+                <div key={item.variantId || `${item.id}-${item.size}-${item.color}`} className="flex justify-between items-center py-3 border-b">
                   <div>
-                    <h4 className="font-medium">{item.name}</h4>
-                    <p className="text-sm text-gray-600">Size: {item.size} | Qty: {item.quantity}</p>
+                    <h4 className="font-medium">{item.name || item.title}</h4>
+                    <p className="text-sm text-gray-600">
+                      {item.color && `${item.color} / `}{item.size} | Qty: {item.quantity}
+                    </p>
                   </div>
-                  <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                  <span className="font-medium">${((item.price / 100) * item.quantity).toFixed(2)}</span>
                 </div>
               ))}
               

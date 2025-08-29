@@ -1,6 +1,6 @@
 // pages/api/printify/products.js
 export default async function handler(req, res) {
-  const PRINTIFY_API_KEY = process.env.PRINTIFY_API_KEY;
+  const PRINTIFY_API_KEY = process.env.PRINTIFY_API_TOKEN;
   const SHOP_ID = '18727817'; // Your OnlyInTX shop ID
   
   if (!PRINTIFY_API_KEY) {
@@ -26,10 +26,22 @@ export default async function handler(req, res) {
           throw new Error(data.message || 'Failed to fetch products');
         }
         
+        // Generate SEO-friendly slug from product title
+        const generateSlug = (title) => {
+          return title
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+            .trim()
+            .replace(/\s+/g, '-') // Replace spaces with hyphens
+            .replace(/-+/g, '-') // Remove duplicate hyphens
+            .substring(0, 50); // Limit length
+        };
+
         // Transform Printify data for your site
         const transformedProducts = data.data?.map(product => ({
           id: product.id,
           title: product.title,
+          slug: generateSlug(product.title),
           description: product.description,
           tags: product.tags,
           images: product.images,

@@ -2,10 +2,15 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: [
-      'images-api.printify.com'
-    ]
-  }
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images-api.printify.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
 }
 
 module.exports = nextConfig

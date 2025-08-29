@@ -13,43 +13,72 @@ export default function AdminOrders() {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      // For now, we'll create a placeholder structure
-      // TODO: Connect to actual order API once Stripe webhooks are set up
-      const mockOrders = [
-        {
-          id: 'order_1',
-          customer_email: 'test@example.com',
-          amount: 3200, // in cents
-          status: 'pending',
-          created_at: new Date().toISOString(),
-          items: [
-            {
-              product_name: 'Austin Skyline T-Shirt',
-              variant: 'Size L, Black',
-              quantity: 1,
-              price: 3200
-            }
-          ]
-        }
-      ];
+      const response = await fetch('/api/orders');
       
-      setOrders(mockOrders);
-      setLoading(false);
+      if (!response.ok) {
+        throw new Error('Failed to fetch orders');
+      }
+      
+      const data = await response.json();
+      setOrders(data.orders || []);
     } catch (err) {
       console.error('Error fetching orders:', err);
       setError('Failed to load orders');
+    } finally {
       setLoading(false);
     }
   };
 
-  const handleFulfillOrder = async (orderId) => {
+  const handleStatusUpdate = async (orderId, newStatus) => {
     try {
-      // TODO: Implement Printify fulfillment API call
-      console.log('Fulfilling order:', orderId);
-      alert('Order fulfillment will be implemented with Printify API');
+      const response = await fetch('/api/orders', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          orderId,
+          updates: { status: newStatus }
+        })
+      });
+
+      if (response.ok) {
+        setOrders(orders.map(order => 
+          order.id === orderId 
+            ? { ...order, status: newStatus }
+            : order
+        ));
+      }
     } catch (err) {
-      console.error('Error fulfilling order:', err);
-      alert('Failed to fulfill order');
+      console.error('Error updating order status:', err);
+      alert('Failed to update order status');
+    }
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'completed':
+      case 'fulfilled':
+        return 'bg-green-100 text-green-800';
+      case 'processing':
+      case 'paid':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'shipped':
+        return 'bg-blue-100 text-blue-800';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -78,15 +107,26 @@ export default function AdminOrders() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-gray-900">Order Management</h1>
-          <div className="text-sm text-gray-500">
-            Total Orders: {orders.length}
+          <div className="flex space-x-4">
+            <button 
+              onClick={fetchOrders}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            >
+              Refresh
+            </button>
+            <div className="text-sm text-gray-500 flex items-center">
+              Total Orders: {orders.length}
+            </div>
           </div>
         </div>
 
         {orders.length === 0 ? (
           <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
             <h3 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
-            <p className="text-gray-500">Orders will appear here once customers start purchasing.</p>
+            <p className="text-gray-500 mb-4">Orders will appear here once customers complete purchases.</p>
+            <p className="text-sm text-gray-400">
+              Make sure your Stripe webhook is configured to receive payment events.
+            </p>
           </div>
         ) : (
           <div className="bg-white shadow overflow-hidden sm:rounded-md">
@@ -101,47 +141,65 @@ export default function AdminOrders() {
                             Order #{order.id}
                           </p>
                           <p className="text-sm text-gray-500">
-                            {order.customer_email}
+                            {order.customer?.email || 'No email'}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {order.customer?.name || 'No name'}
                           </p>
                         </div>
                         <div className="text-right">
                           <p className="text-sm font-medium text-gray-900">
-                            ${(order.amount / 100).toFixed(2)}
+                            ${typeof order.amount === 'number' ? order.amount.toFixed(2) : '0.00'}
                           </p>
                           <p className="text-sm text-gray-500">
-                            {new Date(order.created_at).toLocaleDateString()}
+                            {formatDate(order.createdAt)}
                           </p>
                         </div>
                       </div>
                       
-                      <div className="mt-2">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          order.status === 'completed' 
-                            ? 'bg-green-100 text-green-800'
-                            : order.status === 'processing'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      <div className="mt-2 flex items-center space-x-2">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status)}`}>
+                          {order.status?.charAt(0).toUpperCase() + order.status?.slice(1) || 'Unknown'}
                         </span>
+                        {order.paymentId && (
+                          <span className="text-xs text-gray-500">
+                            Payment: {order.paymentId}
+                          </span>
+                        )}
                       </div>
 
                       <div className="mt-3 space-y-1">
-                        {order.items.map((item, index) => (
+                        {order.items?.map((item, index) => (
                           <div key={index} className="text-sm text-gray-600">
-                            {item.quantity}x {item.product_name} ({item.variant})
+                            {item.quantity}x {item.name} - Size: {item.size} - ${(item.price * item.quantity).toFixed(2)}
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    <div className="ml-4 flex space-x-2">
-                      {order.status === 'pending' && (
+                    <div className="ml-4 flex flex-col space-y-2">
+                      {order.status === 'paid' && (
                         <button
-                          onClick={() => handleFulfillOrder(order.id)}
+                          onClick={() => handleStatusUpdate(order.id, 'processing')}
+                          className="bg-yellow-600 text-white px-3 py-1 rounded-md text-sm hover:bg-yellow-700"
+                        >
+                          Mark Processing
+                        </button>
+                      )}
+                      {order.status === 'processing' && (
+                        <button
+                          onClick={() => handleStatusUpdate(order.id, 'shipped')}
                           className="bg-blue-600 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-700"
                         >
-                          Fulfill
+                          Mark Shipped
+                        </button>
+                      )}
+                      {order.status === 'shipped' && (
+                        <button
+                          onClick={() => handleStatusUpdate(order.id, 'completed')}
+                          className="bg-green-600 text-white px-3 py-1 rounded-md text-sm hover:bg-green-700"
+                        >
+                          Mark Completed
                         </button>
                       )}
                       <button className="bg-gray-100 text-gray-700 px-3 py-1 rounded-md text-sm hover:bg-gray-200">

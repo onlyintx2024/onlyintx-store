@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import AdminProtection from './AdminProtection'
 import { 
   HomeIcon, 
   ShoppingBagIcon, 
   ChartBarIcon, 
   CogIcon,
   Bars3Icon,
-  XMarkIcon
+  XMarkIcon,
+  ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline'
 
 export default function AdminLayout({ children }) {
@@ -20,9 +22,21 @@ export default function AdminLayout({ children }) {
     { name: 'Orders', href: '/admin/orders', icon: ChartBarIcon },
     { name: 'Settings', href: '/admin/settings', icon: CogIcon },
   ]
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin/logout', { method: 'POST' })
+      router.push('/admin/login')
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Force redirect anyway
+      router.push('/admin/login')
+    }
+  }
   
   return (
-    <div className="min-h-screen bg-gray-100">
+    <AdminProtection>
+      <div className="min-h-screen bg-gray-100">
       {/* Mobile sidebar */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
@@ -57,6 +71,17 @@ export default function AdminLayout({ children }) {
                   </Link>
                 ))}
               </nav>
+              
+              {/* Mobile Logout */}
+              <div className="px-2 pb-4">
+                <button
+                  onClick={handleLogout}
+                  className="group flex items-center px-2 py-2 text-base font-medium rounded-md text-red-600 hover:bg-red-50 w-full"
+                >
+                  <ArrowRightOnRectangleIcon className="mr-4 h-6 w-6" />
+                  Logout
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -85,6 +110,17 @@ export default function AdminLayout({ children }) {
                 </Link>
               ))}
             </nav>
+            
+            {/* Desktop Logout */}
+            <div className="px-2 pb-4">
+              <button
+                onClick={handleLogout}
+                className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-red-600 hover:bg-red-50 w-full"
+              >
+                <ArrowRightOnRectangleIcon className="mr-3 h-5 w-5" />
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -114,5 +150,6 @@ export default function AdminLayout({ children }) {
         </main>
       </div>
     </div>
+    </AdminProtection>
   )
 }

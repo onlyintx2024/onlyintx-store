@@ -2,24 +2,44 @@ import Layout from '../components/Layout'
 import { useCart } from '../context/CartContext'
 import Link from 'next/link'
 import { TrashIcon, PlusIcon, MinusIcon } from '@heroicons/react/24/outline'
+import { useState, useEffect } from 'react'
+import { getColorMockupImage } from '../utils/mockupMapping'
 
 export default function Cart() {
   const { state, dispatch } = useCart()
+  const [shippingCost, setShippingCost] = useState(7.99)
   
-  const updateQuantity = (id, size, quantity) => {
+  // Load shipping cost from admin settings
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const response = await fetch('/api/settings')
+        const data = await response.json()
+        if (data.shippingRate) {
+          setShippingCost(parseFloat(data.shippingRate))
+        }
+      } catch (error) {
+        console.error('Error loading settings:', error)
+        // Keep default $7.99 if settings fail to load
+      }
+    }
+    loadSettings()
+  }, [])
+  
+  const updateQuantity = (id, size, color, variantId, quantity) => {
     if (quantity <= 0) {
-      dispatch({ type: 'REMOVE_FROM_CART', payload: { id, size } })
+      dispatch({ type: 'REMOVE_FROM_CART', payload: { id, size, color, variantId } })
     } else {
-      dispatch({ type: 'UPDATE_QUANTITY', payload: { id, size, quantity } })
+      dispatch({ type: 'UPDATE_QUANTITY', payload: { id, size, color, variantId, quantity } })
     }
   }
   
-  const removeItem = (id, size) => {
-    dispatch({ type: 'REMOVE_FROM_CART', payload: { id, size } })
+  const removeItem = (id, size, color, variantId) => {
+    dispatch({ type: 'REMOVE_FROM_CART', payload: { id, size, color, variantId } })
   }
   
-  const subtotal = state.items.reduce((total, item) => total + (item.price * item.quantity), 0)
-  const shipping = subtotal > 50 ? 0 : 7.99
+  const subtotal = state.items.reduce((total, item) => total + ((item.price / 100) * item.quantity), 0)
+  const shipping = subtotal > 50 ? 0 : shippingCost
   const total = subtotal + shipping
   
   if (state.items.length === 0) {
@@ -51,9 +71,37 @@ export default function Cart() {
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow">
                 {state.items.map((item) => (
-                  <div key={`${item.id}-${item.size}`} className="flex items-center p-6 border-b border-gray-200 last:border-b-0">
+                  <div key={item.variantId || `${item.id}-${item.size}-${item.color}`} className="flex items-center p-6 border-b border-gray-200 last:border-b-0">
                     <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center mr-4">
-                      <span className="text-gray-500 text-xs">Image</span>
+                      {item.image ? (
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-full h-full object-contain rounded-lg"
+                          onError={(e) => {
+                            // Fallback to mockup image based on product info
+                            const mockupImage = getColorMockupImage(item.id, item.color, 'thumb')
+                            if (e.target.src !== mockupImage) {
+                              e.target.src = mockupImage
+                            } else {
+                              // Final fallback to placeholder
+                              e.target.style.display = 'none'
+                              e.target.nextSibling.style.display = 'block'
+                            }
+                          }}
+                        />
+                      ) : (
+                        <img
+                          src={getColorMockupImage(item.id, item.color, 'thumb')}
+                          alt={item.name}
+                          className="w-full h-full object-contain rounded-lg"
+                          onError={(e) => {
+                            e.target.style.display = 'none'
+                            e.target.nextSibling.style.display = 'block'
+                          }}
+                        />
+                      )}
+                      <span className="text-gray-500 text-xs" style={{display: 'none'}}>No Image</span>
                     </div>
                     
                     <div className="flex-1">
@@ -64,14 +112,14 @@ export default function Cart() {
                     
                     <div className="flex items-center space-x-3">
                       <button
-                        onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
+                        onClick={() => updateQuantity(item.id, item.size, item.color, item.variantId, item.quantity - 1)}
                         className="p-1 text-gray-400 hover:text-gray-600"
                       >
                         <MinusIcon className="h-4 w-4" />
                       </button>
                       <span className="w-8 text-center">{item.quantity}</span>
                       <button
-                        onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
+                        onClick={() => updateQuantity(item.id, item.size, item.color, item.variantId, item.quantity + 1)}
                         className="p-1 text-gray-400 hover:text-gray-600"
                       >
                         <PlusIcon className="h-4 w-4" />
@@ -79,9 +127,9 @@ export default function Cart() {
                     </div>
                     
                     <div className="text-right ml-4">
-                      <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="font-semibold">${((item.price / 100) * item.quantity).toFixed(2)}</p>
                       <button
-                        onClick={() => removeItem(item.id, item.size)}
+                        onClick={() => removeItem(item.id, item.size, item.color, item.variantId)}
                         className="text-red-500 hover:text-red-700 mt-1"
                       >
                         <TrashIcon className="h-4 w-4" />

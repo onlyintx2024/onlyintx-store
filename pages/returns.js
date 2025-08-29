@@ -166,22 +166,16 @@ export default function Returns() {
           
           {/* Contact for Returns */}
           <div className="text-center bg-white rounded-lg shadow-md p-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Need to Start a Return?</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Ready to Start Your Return?</h3>
             <p className="text-gray-600 mb-6">
-              Our customer service team is here to help make your return as easy as possible. Reach out and we'll get you taken care of!
+              Use our contact form to start your return process. Select "Return/Exchange" from the subject dropdown and provide your order details. Our team will respond with return instructions within 24 hours!
             </p>
-            <div className="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
+            <div className="flex justify-center">
               <a 
                 href="/contact" 
                 className="inline-block bg-texas-red text-white px-8 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors duration-200"
               >
-                Contact Us
-              </a>
-              <a 
-                href="mailto:onliyintx@gmail.com" 
-                className="inline-block bg-texas-blue text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200"
-              >
-                Email Returns Team
+                Start Your Return Request
               </a>
             </div>
           </div>

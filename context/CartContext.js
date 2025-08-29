@@ -5,16 +5,19 @@ const CartContext = createContext()
 const cartReducer = (state, action) => {
   switch (action.type) {
     case 'ADD_TO_CART':
+      // Check for existing item with same variantId (more precise than id + size)
       const existingItem = state.items.find(
-        item => item.id === action.payload.id && item.size === action.payload.size
+        item => item.variantId === action.payload.variantId || 
+                (item.id === action.payload.id && item.size === action.payload.size && item.color === action.payload.color)
       )
       
       if (existingItem) {
         return {
           ...state,
           items: state.items.map(item =>
-            item.id === action.payload.id && item.size === action.payload.size
-              ? { ...item, quantity: item.quantity + action.payload.quantity }
+            (item.variantId === action.payload.variantId || 
+             (item.id === action.payload.id && item.size === action.payload.size && item.color === action.payload.color))
+              ? { ...item, quantity: item.quantity + (action.payload.quantity || 1) }
               : item
           )
         }
@@ -29,7 +32,8 @@ const cartReducer = (state, action) => {
       return {
         ...state,
         items: state.items.filter(item => 
-          !(item.id === action.payload.id && item.size === action.payload.size)
+          !(item.variantId === action.payload.variantId || 
+            (item.id === action.payload.id && item.size === action.payload.size && item.color === action.payload.color))
         )
       }
     
@@ -37,7 +41,8 @@ const cartReducer = (state, action) => {
       return {
         ...state,
         items: state.items.map(item =>
-          item.id === action.payload.id && item.size === action.payload.size
+          (item.variantId === action.payload.variantId || 
+           (item.id === action.payload.id && item.size === action.payload.size && item.color === action.payload.color))
             ? { ...item, quantity: action.payload.quantity }
             : item
         )
@@ -69,5 +74,17 @@ export const useCart = () => {
   if (!context) {
     throw new Error('useCart must be used within a CartProvider')
   }
-  return context
+  
+  // Add convenience method for adding items to cart
+  const addToCart = (item) => {
+    context.dispatch({
+      type: 'ADD_TO_CART',
+      payload: item
+    })
+  }
+  
+  return {
+    ...context,
+    addToCart
+  }
 }
