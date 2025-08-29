@@ -67,14 +67,17 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log('🔍 Processing webhook event:', event.type)
     switch (event.type) {
       case 'payment_intent.succeeded':
         const paymentIntent = event.data.object
         console.log('💰 Payment succeeded:', paymentIntent.id)
         console.log('Amount:', paymentIntent.amount / 100)
+        console.log('Metadata:', paymentIntent.metadata)
         
         // Create order in our system and Printify
-        await handleSuccessfulPayment(paymentIntent)
+        const result = await handleSuccessfulPayment(paymentIntent)
+        console.log('📊 Order handling result:', result ? 'SUCCESS' : 'FAILED')
         break
         
       case 'payment_intent.payment_failed':
@@ -141,17 +144,21 @@ const shippingInfo = paymentIntent.shipping || {
     }
     
     // Save order to local storage
+    console.log('💾 Attempting to save order:', order.id)
     try {
       const orders = getOrders()
+      console.log('📂 Current orders count:', orders.length)
       orders.unshift(order) // Add to beginning of array
+      console.log('📋 Orders after adding new:', orders.length)
       
       if (saveOrders(orders)) {
-        console.log('✅ Order saved to local storage')
+        console.log('✅ Order saved to local storage successfully')
       } else {
         console.error('❌ Failed to save order to local storage')
       }
     } catch (saveError) {
       console.error('❌ Error saving to local storage:', saveError)
+      console.error('❌ Save error details:', saveError.stack)
     }
     
     // Create orders in Printify for each item (skip if test mode)
