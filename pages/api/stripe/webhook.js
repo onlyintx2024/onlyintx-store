@@ -1,44 +1,9 @@
 import Stripe from 'stripe'
 import { buffer } from 'micro'
-import fs from 'fs'
-import path from 'path'
+import { saveOrder, updateOrder } from '../../../lib/storage'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET
-
-// File system functions for orders
-const ordersFilePath = path.join(process.cwd(), 'data', 'orders.json')
-
-function getOrders() {
-  try {
-    // Ensure data directory exists
-    const dataDir = path.join(process.cwd(), 'data')
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir, { recursive: true })
-    }
-    
-    // Initialize orders file if it doesn't exist
-    if (!fs.existsSync(ordersFilePath)) {
-      fs.writeFileSync(ordersFilePath, JSON.stringify([], null, 2))
-    }
-    
-    const data = fs.readFileSync(ordersFilePath, 'utf8')
-    return JSON.parse(data)
-  } catch (error) {
-    console.error('Error reading orders:', error)
-    return []
-  }
-}
-
-function saveOrders(orders) {
-  try {
-    fs.writeFileSync(ordersFilePath, JSON.stringify(orders, null, 2))
-    return true
-  } catch (error) {
-    console.error('Error saving orders:', error)
-    return false
-  }
-}
 
 // Disable body parsing, need raw body for webhook signature verification
 export const config = {
@@ -143,22 +108,11 @@ const shippingInfo = paymentIntent.shipping || {
       createdAt: new Date().toISOString()
     }
     
-    // Save order to local storage
-    console.log('💾 Attempting to save order:', order.id)
-    try {
-      const orders = getOrders()
-      console.log('📂 Current orders count:', orders.length)
-      orders.unshift(order) // Add to beginning of array
-      console.log('📋 Orders after adding new:', orders.length)
-      
-      if (saveOrders(orders)) {
-        console.log('✅ Order saved to local storage successfully')
-      } else {
-        console.error('❌ Failed to save order to local storage')
-      }
-    } catch (saveError) {
-      console.error('❌ Error saving to local storage:', saveError)
-      console.error('❌ Save error details:', saveError.stack)
+    // Save order to persistent storage
+    console.log('💾 Attempting to save order to persistent storage:', order.id)
+    const saveResult = await saveOrder(order)
+    if (!saveResult) {
+      console.error('❌ Failed to save order to persistent storage')
     }
     
     // Create orders in Printify for each item (skip if test mode)
@@ -184,28 +138,14 @@ const shippingInfo = paymentIntent.shipping || {
       order.printifyOrderIds = printifyResults
       order.status = 'processing'
       
-      // Update order in storage
-      try {
-        const orders = getOrders()
-        const orderIndex = orders.findIndex(o => o.id === order.id)
-        
-        if (orderIndex !== -1) {
-          orders[orderIndex] = {
-            ...orders[orderIndex],
-            printifyOrderIds: printifyResults,
-            status: 'processing'
-          }
-          
-          if (saveOrders(orders)) {
-            console.log('✅ Order updated with Printify IDs')
-          } else {
-            console.error('❌ Failed to update order')
-          }
-        } else {
-          console.error('❌ Order not found for update')
-        }
-      } catch (updateError) {
-        console.error('❌ Error updating order:', updateError)
+      // Update order in persistent storage
+      const updateResult = await updateOrder(order.id, {
+        printifyOrderIds: printifyResults,
+        status: 'processing'
+      })
+      
+      if (!updateResult) {
+        console.error('❌ Failed to update order with Printify IDs')
       }
     }
     
