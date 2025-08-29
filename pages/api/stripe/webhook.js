@@ -1,8 +1,44 @@
 import Stripe from 'stripe'
 import { buffer } from 'micro'
+import fs from 'fs'
+import path from 'path'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET
+
+// File system functions for orders
+const ordersFilePath = path.join(process.cwd(), 'data', 'orders.json')
+
+function getOrders() {
+  try {
+    // Ensure data directory exists
+    const dataDir = path.join(process.cwd(), 'data')
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true })
+    }
+    
+    // Initialize orders file if it doesn't exist
+    if (!fs.existsSync(ordersFilePath)) {
+      fs.writeFileSync(ordersFilePath, JSON.stringify([], null, 2))
+    }
+    
+    const data = fs.readFileSync(ordersFilePath, 'utf8')
+    return JSON.parse(data)
+  } catch (error) {
+    console.error('Error reading orders:', error)
+    return []
+  }
+}
+
+function saveOrders(orders) {
+  try {
+    fs.writeFileSync(ordersFilePath, JSON.stringify(orders, null, 2))
+    return true
+  } catch (error) {
+    console.error('Error saving orders:', error)
+    return false
+  }
+}
 
 // Disable body parsing, need raw body for webhook signature verification
 export const config = {
@@ -104,22 +140,15 @@ const shippingInfo = paymentIntent.shipping || {
       createdAt: new Date().toISOString()
     }
     
-    // Save order to local storage (for local testing)
+    // Save order to local storage
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-      const saveResponse = await fetch(`${baseUrl}/api/orders`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': process.env.ADMIN_PASSWORD
-        },
-        body: JSON.stringify({ order })
-      })
-
-      if (!saveResponse.ok) {
-        console.error('❌ Failed to save order to local storage')
-      } else {
+      const orders = getOrders()
+      orders.unshift(order) // Add to beginning of array
+      
+      if (saveOrders(orders)) {
         console.log('✅ Order saved to local storage')
+      } else {
+        console.error('❌ Failed to save order to local storage')
       }
     } catch (saveError) {
       console.error('❌ Error saving to local storage:', saveError)
@@ -150,21 +179,24 @@ const shippingInfo = paymentIntent.shipping || {
       
       // Update order in storage
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-        await fetch(`${baseUrl}/api/orders`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': process.env.ADMIN_PASSWORD
-          },
-          body: JSON.stringify({
-            orderId: order.id,
-            updates: {
-              printifyOrderIds: printifyResults,
-              status: 'processing'
-            }
-          })
-        })
+        const orders = getOrders()
+        const orderIndex = orders.findIndex(o => o.id === order.id)
+        
+        if (orderIndex !== -1) {
+          orders[orderIndex] = {
+            ...orders[orderIndex],
+            printifyOrderIds: printifyResults,
+            status: 'processing'
+          }
+          
+          if (saveOrders(orders)) {
+            console.log('✅ Order updated with Printify IDs')
+          } else {
+            console.error('❌ Failed to update order')
+          }
+        } else {
+          console.error('❌ Order not found for update')
+        }
       } catch (updateError) {
         console.error('❌ Error updating order:', updateError)
       }
