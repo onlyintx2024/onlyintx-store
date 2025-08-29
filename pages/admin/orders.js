@@ -13,7 +13,13 @@ export default function AdminOrders() {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/orders');
+      const response = await fetch('/api/orders', {
+        method: 'GET',
+        credentials: 'include', // Include cookies for authentication
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       
       if (!response.ok) {
         throw new Error('Failed to fetch orders');
@@ -33,6 +39,7 @@ export default function AdminOrders() {
     try {
       const response = await fetch('/api/orders', {
         method: 'PUT',
+        credentials: 'include', // Include cookies for authentication
         headers: {
           'Content-Type': 'application/json'
         },
