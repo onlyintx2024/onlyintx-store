@@ -110,7 +110,8 @@ const shippingInfo = paymentIntent.shipping || {
       const saveResponse = await fetch(`${baseUrl}/api/orders`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': process.env.ADMIN_PASSWORD
         },
         body: JSON.stringify({ order })
       })
@@ -153,7 +154,8 @@ const shippingInfo = paymentIntent.shipping || {
         await fetch(`${baseUrl}/api/orders`, {
           method: 'PUT',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': process.env.ADMIN_PASSWORD
           },
           body: JSON.stringify({
             orderId: order.id,

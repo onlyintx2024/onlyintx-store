@@ -209,7 +209,10 @@ export default function AdminOrders() {
                           Mark Completed
                         </button>
                       )}
-                      <button className="bg-gray-100 text-gray-700 px-3 py-1 rounded-md text-sm hover:bg-gray-200">
+                      <button 
+                        onClick={() => alert(`Order Details:\nID: ${order.id}\nCustomer: ${order.customer?.name || 'N/A'}\nEmail: ${order.customer?.email || 'N/A'}\nAmount: $${typeof order.amount === 'number' ? order.amount.toFixed(2) : '0.00'}\nStatus: ${order.status || 'Unknown'}\nPayment ID: ${order.paymentId || 'N/A'}\nCreated: ${formatDate(order.createdAt)}`)}
+                        className="bg-gray-100 text-gray-700 px-3 py-1 rounded-md text-sm hover:bg-gray-200"
+                      >
                         View Details
                       </button>
                     </div>
