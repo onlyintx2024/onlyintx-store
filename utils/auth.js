@@ -30,4 +30,4 @@ export function requireAuth(handler) {
 // Simple password verification for login
 export function verifyPassword(password) {
   return password === ADMIN_PASSWORD
-}
+}// Force rebuild for environment variables
