@@ -9,7 +9,8 @@ import {
   CogIcon,
   Bars3Icon,
   XMarkIcon,
-  ArrowRightOnRectangleIcon
+  ArrowRightOnRectangleIcon,
+  LinkIcon
 } from '@heroicons/react/24/outline'
 
 export default function AdminLayout({ children }) {
@@ -20,6 +21,7 @@ export default function AdminLayout({ children }) {
     { name: 'Dashboard', href: '/admin', icon: HomeIcon },
     { name: 'Products', href: '/admin/products', icon: ShoppingBagIcon },
     { name: 'Orders', href: '/admin/orders', icon: ChartBarIcon },
+    { name: 'URL Slugs', href: '/admin/slugs', icon: LinkIcon },
     { name: 'Settings', href: '/admin/settings', icon: CogIcon },
   ]
 

@@ -1,4 +1,6 @@
 // pages/api/printify/products.js
+import { getProductSlug } from '../../../lib/slugs'
+
 export default async function handler(req, res) {
   const PRINTIFY_API_KEY = process.env.PRINTIFY_API_TOKEN;
   const SHOP_ID = '18727817'; // Your OnlyInTX shop ID
@@ -67,7 +69,7 @@ export default async function handler(req, res) {
         const transformedProducts = detailedProducts.map(product => ({
           id: product.id,
           title: product.title,
-          slug: generateSlug(product.title),
+          slug: getProductSlug(product.id, product.title),
           description: product.description,
           tags: product.tags,
           images: product.images,
