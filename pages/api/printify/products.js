@@ -40,9 +40,11 @@ export default async function handler(req, res) {
         };
 
         // Get detailed product info including creation dates
+        console.log('Fetching detailed product info for', data.data?.length, 'products')
         const detailedProducts = await Promise.all(
-          (data.data || []).map(async (product) => {
+          (data.data || []).slice(0, 10).map(async (product) => { // Limit to first 10 to avoid rate limits
             try {
+              console.log(`Fetching details for product ${product.id}`)
               // Fetch individual product details to get creation date
               const detailResponse = await fetch(`https://api.printify.com/v1/shops/${SHOP_ID}/products/${product.id}.json`, {
                 headers
@@ -50,14 +52,17 @@ export default async function handler(req, res) {
               
               if (detailResponse.ok) {
                 const detailData = await detailResponse.json();
+                console.log(`Product ${product.id} created_at:`, detailData.created_at)
                 return {
                   ...product,
                   created_at: detailData.created_at,
                   updated_at: detailData.updated_at
                 };
+              } else {
+                console.error(`Failed to fetch product ${product.id}:`, detailResponse.status)
               }
             } catch (error) {
-              console.error(`Failed to fetch details for product ${product.id}:`, error);
+              console.error(`Error fetching details for product ${product.id}:`, error);
             }
             
             // Return original product if detail fetch fails

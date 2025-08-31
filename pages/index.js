@@ -174,22 +174,31 @@ export default function Home() {
             '68a2acaa09de3a1de90e76bc'  // Houston Music Lover (Aug 27 - oldest)
           ]
           
+          console.log('Products with dates:', data.products.map(p => ({
+            id: p.id, 
+            title: p.title, 
+            created_at: p.created_at 
+          })))
+          
           const sortedProducts = data.products.sort((a, b) => {
+            // Use API dates if available (preferred method)
+            if (a.created_at && b.created_at) {
+              const dateA = new Date(a.created_at)
+              const dateB = new Date(b.created_at)
+              console.log(`Comparing: ${a.title} (${a.created_at}) vs ${b.title} (${b.created_at})`)
+              return dateB - dateA // Newest first
+            }
+            
+            // Fallback to known creation order for existing products
             const indexA = creationOrder.indexOf(a.id)
             const indexB = creationOrder.indexOf(b.id)
             
-            // If both products are in our known list, sort by known order
             if (indexA !== -1 && indexB !== -1) {
               return indexA - indexB // Earlier index = newer product
             }
-            // If one is unknown, put known products first
             if (indexA !== -1) return -1
             if (indexB !== -1) return 1
             
-            // If both unknown, use API dates if available
-            if (a.created_at && b.created_at) {
-              return new Date(b.created_at) - new Date(a.created_at)
-            }
             // Final fallback to hex ID comparison
             return b.id.localeCompare(a.id)
           })
