@@ -165,23 +165,26 @@ export default function Home() {
         console.log('API Response data:', data)
         
         if (data.products && data.products.length > 0) {
-          // Design order numbers - higher number = newer design
-          // Latest Designs section will show the 4 highest numbers
-          const designOrder = {
-            '68a2acaa09de3a1de90e76bc': 1,  // Houston Music Lover (Aug 27 - oldest)
-            '68a2b13ab9d87186e105fab5': 2,  // San Antonio Alamo (Aug 27)
-            '68a2bc1b87987a828a0b6a4b': 3,  // Dallas Big D Energy (Aug 27) 
-            '68a2bcee571c2c156d0885f8': 4,  // Austin Foodie T-Shirt (Aug 27)
-            '68afd1f5a85dd8cf040a3818': 5   // Keep Austin Weird and Loud (Aug 29 - newest)
-          }
+          // Import metadata functions
+          const { getProductMetadata, assignDesignOrderToNewProduct } = await import('../lib/productMetadata')
           
-          const sortedProducts = data.products.sort((a, b) => {
-            const orderA = designOrder[a.id] || 0 // Unknown products go to beginning
-            const orderB = designOrder[b.id] || 0
+          // Add metadata to products and auto-assign to new ones
+          const productsWithMetadata = data.products.map(product => {
+            let metadata = getProductMetadata(product.id)
+            if (!metadata) {
+              // Auto-assign design order to new products
+              metadata = assignDesignOrderToNewProduct(product.id)
+            }
             
-            // Higher number = newer design, sort descending (newest first)
-            return orderB - orderA
+            return {
+              ...product,
+              designOrder: metadata.designOrder,
+              unitsSold: metadata.unitsSold
+            }
           })
+          
+          // Sort by design order (newest first) for main product list
+          const sortedProducts = productsWithMetadata.sort((a, b) => b.designOrder - a.designOrder)
           
           // Transform products with SEO optimization
           const transformedProducts = sortedProducts.map(product => {
@@ -299,7 +302,9 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {featuredProducts.slice(0, 4).map((product) => (
+              {featuredProducts
+                .sort((a, b) => b.unitsSold - a.unitsSold) // Sort by units sold (highest first)
+                .slice(0, 4).map((product) => (
                 <div key={product.id} className="group">
                   <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     <Link href={`/product/${product.slug || product.id}`}>
@@ -351,7 +356,9 @@ export default function Home() {
               Latest Designs
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {featuredProducts.slice(4, 8).map((product) => (
+              {featuredProducts
+                .sort((a, b) => b.designOrder - a.designOrder) // Sort by design order (newest first)
+                .slice(0, 4).map((product) => (
                 <div key={`latest-${product.id}`} className="group">
                   <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     <Link href={`/product/${product.slug || product.id}`}>
