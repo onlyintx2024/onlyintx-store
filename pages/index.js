@@ -165,12 +165,10 @@ export default function Home() {
         console.log('API Response data:', data)
         
         if (data.products && data.products.length > 0) {
-          // Sort products by creation date (newest first)
+          // Sort products by creation date (newest first) - use string comparison for large hex values
           const sortedProducts = data.products.sort((a, b) => {
-            // Extract product ID to get creation order (newer IDs come later)
-            const idA = parseInt(a.id, 16) || 0
-            const idB = parseInt(b.id, 16) || 0
-            return idB - idA // Descending order (newest first)
+            // Compare hex IDs as strings (newer IDs are lexicographically larger)
+            return b.id.localeCompare(a.id) // Descending order (newest first)
           })
           
           // Transform products with SEO optimization
