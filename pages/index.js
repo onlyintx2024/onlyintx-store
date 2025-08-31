@@ -165,42 +165,22 @@ export default function Home() {
         console.log('API Response data:', data)
         
         if (data.products && data.products.length > 0) {
-          // Sort products by known creation order (newest first) based on admin screenshot
-          const creationOrder = [
-            '68afd1f5a85dd8cf040a3818', // Keep Austin Weird and Loud (Aug 29 - newest)
-            '68a2bcee571c2c156d0885f8', // Austin Foodie T-Shirt (Aug 27)
-            '68a2bc1b87987a828a0b6a4b', // Dallas Big D Energy (Aug 27) 
-            '68a2b13ab9d87186e105fab5', // San Antonio Alamo (Aug 27)
-            '68a2acaa09de3a1de90e76bc'  // Houston Music Lover (Aug 27 - oldest)
-          ]
-          
-          console.log('Products with dates:', data.products.map(p => ({
-            id: p.id, 
-            title: p.title, 
-            created_at: p.created_at 
-          })))
+          // Simple product sorting using manual priority numbers
+          // Printify API doesn't provide reliable creation dates, so we assign priorities manually
+          const productPriority = {
+            '68afd1f5a85dd8cf040a3818': 1, // Keep Austin Weird and Loud (Aug 29 - newest)
+            '68a2bcee571c2c156d0885f8': 2, // Austin Foodie T-Shirt (Aug 27)
+            '68a2bc1b87987a828a0b6a4b': 3, // Dallas Big D Energy (Aug 27) 
+            '68a2b13ab9d87186e105fab5': 4, // San Antonio Alamo (Aug 27)
+            '68a2acaa09de3a1de90e76bc': 5  // Houston Music Lover (Aug 27 - oldest)
+          }
           
           const sortedProducts = data.products.sort((a, b) => {
-            // Use API dates if available (preferred method)
-            if (a.created_at && b.created_at) {
-              const dateA = new Date(a.created_at)
-              const dateB = new Date(b.created_at)
-              console.log(`Comparing: ${a.title} (${a.created_at}) vs ${b.title} (${b.created_at})`)
-              return dateB - dateA // Newest first
-            }
+            const priorityA = productPriority[a.id] || 999 // Unknown products go to end
+            const priorityB = productPriority[b.id] || 999
             
-            // Fallback to known creation order for existing products
-            const indexA = creationOrder.indexOf(a.id)
-            const indexB = creationOrder.indexOf(b.id)
-            
-            if (indexA !== -1 && indexB !== -1) {
-              return indexA - indexB // Earlier index = newer product
-            }
-            if (indexA !== -1) return -1
-            if (indexB !== -1) return 1
-            
-            // Final fallback to hex ID comparison
-            return b.id.localeCompare(a.id)
+            // Lower number = higher priority (newer product)
+            return priorityA - priorityB
           })
           
           // Transform products with SEO optimization

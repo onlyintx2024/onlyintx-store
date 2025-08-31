@@ -39,47 +39,8 @@ export default async function handler(req, res) {
             .substring(0, 100); // Limit length to 100 chars
         };
 
-        // Test just one product to see what we get
-        console.log('Testing individual product fetch for Keep Austin Loud')
-        let detailedProducts = [...(data.data || [])]
-        
-        try {
-          const testProductId = '68afd1f5a85dd8cf040a3818' // Keep Austin Loud
-          const testResponse = await fetch(`https://api.printify.com/v1/shops/${SHOP_ID}/products/${testProductId}.json`, {
-            headers
-          });
-          
-          if (testResponse.ok) {
-            const testData = await testResponse.json();
-            console.log('All date-related fields found:')
-            console.log('- created_at:', testData.created_at)
-            console.log('- updated_at:', testData.updated_at) 
-            console.log('- publish_at:', testData.publish_at)
-            console.log('- Any other timestamps?', Object.keys(testData).filter(key => 
-              key.includes('date') || key.includes('time') || key.includes('created') || key.includes('updated')
-            ))
-            
-            // Also test a different product to compare
-            console.log('Testing Houston product for comparison...')
-            const houstonResponse = await fetch(`https://api.printify.com/v1/shops/${SHOP_ID}/products/68a2acaa09de3a1de90e76bc.json`, {
-              headers
-            });
-            
-            if (houstonResponse.ok) {
-              const houstonData = await houstonResponse.json();
-              console.log('Houston product dates:')
-              console.log('- created_at:', houstonData.created_at)
-              console.log('- updated_at:', houstonData.updated_at)
-              console.log('- publish_at:', houstonData.publish_at)
-            }
-            
-            // For now, don't update anything - let's see the data first
-          } else {
-            console.error('Individual product fetch failed:', testResponse.status, await testResponse.text())
-          }
-        } catch (error) {
-          console.error('Error testing individual product fetch:', error)
-        }
+        // Use bulk products data directly - individual date fetching doesn't work reliably
+        const detailedProducts = data.data || []
 
         // Transform Printify data for your site
         const transformedProducts = detailedProducts.map(product => ({
