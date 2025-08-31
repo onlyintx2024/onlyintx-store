@@ -165,22 +165,22 @@ export default function Home() {
         console.log('API Response data:', data)
         
         if (data.products && data.products.length > 0) {
-          // Simple product sorting using manual priority numbers
-          // Printify API doesn't provide reliable creation dates, so we assign priorities manually
-          const productPriority = {
-            '68afd1f5a85dd8cf040a3818': 1, // Keep Austin Weird and Loud (Aug 29 - newest)
-            '68a2bcee571c2c156d0885f8': 2, // Austin Foodie T-Shirt (Aug 27)
-            '68a2bc1b87987a828a0b6a4b': 3, // Dallas Big D Energy (Aug 27) 
-            '68a2b13ab9d87186e105fab5': 4, // San Antonio Alamo (Aug 27)
-            '68a2acaa09de3a1de90e76bc': 5  // Houston Music Lover (Aug 27 - oldest)
+          // Design order numbers - higher number = newer design
+          // Latest Designs section will show the 4 highest numbers
+          const designOrder = {
+            '68a2acaa09de3a1de90e76bc': 1,  // Houston Music Lover (Aug 27 - oldest)
+            '68a2b13ab9d87186e105fab5': 2,  // San Antonio Alamo (Aug 27)
+            '68a2bc1b87987a828a0b6a4b': 3,  // Dallas Big D Energy (Aug 27) 
+            '68a2bcee571c2c156d0885f8': 4,  // Austin Foodie T-Shirt (Aug 27)
+            '68afd1f5a85dd8cf040a3818': 5   // Keep Austin Weird and Loud (Aug 29 - newest)
           }
           
           const sortedProducts = data.products.sort((a, b) => {
-            const priorityA = productPriority[a.id] || 999 // Unknown products go to end
-            const priorityB = productPriority[b.id] || 999
+            const orderA = designOrder[a.id] || 0 // Unknown products go to beginning
+            const orderB = designOrder[b.id] || 0
             
-            // Lower number = higher priority (newer product)
-            return priorityA - priorityB
+            // Higher number = newer design, sort descending (newest first)
+            return orderB - orderA
           })
           
           // Transform products with SEO optimization
