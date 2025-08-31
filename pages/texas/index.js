@@ -1,6 +1,6 @@
 import Layout from '../../components/Layout'
 import Head from 'next/head'
-import ProductGrid from '../../components/ProductGrid'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 export default function TexasGear() {
@@ -11,7 +11,7 @@ export default function TexasGear() {
     fetch('/api/printify/products')
       .then(res => res.json())
       .then(data => {
-        // Filter for state-wide Texas products (you can add specific tags or filtering logic)
+        // Show all products for now (you can add filtering logic later)
         const texasProducts = data.products || []
         setProducts(texasProducts)
         setLoading(false)
@@ -66,7 +66,39 @@ export default function TexasGear() {
               <div className="text-2xl text-gray-600">Loading Texas gear...</div>
             </div>
           ) : (
-            <ProductGrid products={products} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {products.map((product) => (
+                <div key={product.id} className="group">
+                  <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                    <Link href={`/product/${product.slug || product.id}`}>
+                      <div className="h-64 relative overflow-hidden cursor-pointer">
+                        <img
+                          src={product.images?.[0]?.src || '/images/texas-default.jpg'}
+                          alt={product.title}
+                          className="w-full h-full object-contain bg-gray-100 group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    </Link>
+                    <div className="p-6">
+                      <Link href={`/product/${product.slug || product.id}`}>
+                        <h3 className="font-semibold text-gray-900 mb-2 cursor-pointer hover:text-texas-blue transition-colors">
+                          {product.title}
+                        </h3>
+                      </Link>
+                      <p className="text-sm text-gray-600 mb-3">{product.description}</p>
+                      <div className="text-right">
+                        <Link 
+                          href={`/product/${product.slug || product.id}`}
+                          className="bg-texas-red text-white px-4 py-2 rounded hover:bg-red-700 transition-colors duration-200 inline-block text-center"
+                        >
+                          View Product
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
