@@ -34,7 +34,7 @@ export default async function handler(req, res) {
             .trim()
             .replace(/\s+/g, '-') // Replace spaces with hyphens
             .replace(/-+/g, '-') // Remove duplicate hyphens
-            .substring(0, 50); // Limit length
+            .substring(0, 100); // Limit length to 100 chars
         };
 
         // Get detailed product info including creation dates

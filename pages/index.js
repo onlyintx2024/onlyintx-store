@@ -165,14 +165,32 @@ export default function Home() {
         console.log('API Response data:', data)
         
         if (data.products && data.products.length > 0) {
-          // Sort products by actual creation dates from Printify API
+          // Sort products by known creation order (newest first) based on admin screenshot
+          const creationOrder = [
+            '68afd1f5a85dd8cf040a3818', // Keep Austin Weird and Loud (Aug 29 - newest)
+            '68a2bcee571c2c156d0885f8', // Austin Foodie T-Shirt (Aug 27)
+            '68a2bc1b87987a828a0b6a4b', // Dallas Big D Energy (Aug 27) 
+            '68a2b13ab9d87186e105fab5', // San Antonio Alamo (Aug 27)
+            '68a2acaa09de3a1de90e76bc'  // Houston Music Lover (Aug 27 - oldest)
+          ]
+          
           const sortedProducts = data.products.sort((a, b) => {
-            console.log(`Sorting: ${a.title} (${a.created_at}) vs ${b.title} (${b.created_at})`)
-            // Use creation dates if available, fallback to hex ID comparison
-            if (a.created_at && b.created_at) {
-              return new Date(b.created_at) - new Date(a.created_at) // Newest first
+            const indexA = creationOrder.indexOf(a.id)
+            const indexB = creationOrder.indexOf(b.id)
+            
+            // If both products are in our known list, sort by known order
+            if (indexA !== -1 && indexB !== -1) {
+              return indexA - indexB // Earlier index = newer product
             }
-            // Fallback to hex ID comparison if dates unavailable
+            // If one is unknown, put known products first
+            if (indexA !== -1) return -1
+            if (indexB !== -1) return 1
+            
+            // If both unknown, use API dates if available
+            if (a.created_at && b.created_at) {
+              return new Date(b.created_at) - new Date(a.created_at)
+            }
+            // Final fallback to hex ID comparison
             return b.id.localeCompare(a.id)
           })
           
