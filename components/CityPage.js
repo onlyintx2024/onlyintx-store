@@ -101,7 +101,7 @@ export default function CityPage({ city }) {
           // Get the first available color from enabled variants for thumbnail
           const enabledVariants = product.variants.filter(v => v.is_enabled);
           const firstColor = enabledVariants.length > 0 ? 
-            (enabledVariants[0].title.split(' / ')[0]?.trim() || 'Default') : 'Default';
+            (enabledVariants[0].title.split(' / ')[0]?.trim() || 'Black') : 'Black';
           
           return {
             id: product.id,

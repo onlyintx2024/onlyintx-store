@@ -165,14 +165,25 @@ export default function Home() {
         console.log('API Response data:', data)
         
         if (data.products && data.products.length > 0) {
+          // Sort products by creation date (newest first)
+          const sortedProducts = data.products.sort((a, b) => {
+            // Extract product ID to get creation order (newer IDs come later)
+            const idA = parseInt(a.id, 16) || 0
+            const idB = parseInt(b.id, 16) || 0
+            return idB - idA // Descending order (newest first)
+          })
+          
           // Transform products with SEO optimization
-          const transformedProducts = data.products.map(product => {
+          const transformedProducts = sortedProducts.map(product => {
             const cityName = getCityFromProduct(product)
             
             // Get the first available color from enabled variants for thumbnail
             const enabledVariants = product.variants.filter(v => v.is_enabled);
             const firstColor = enabledVariants.length > 0 ? 
-              (enabledVariants[0].title.split(' / ')[0]?.trim() || 'Default') : 'Default';
+              (enabledVariants[0].title.split(' / ')[0]?.trim() || 'Black') : 'Black';
+            
+            // Get custom mockup image with automatic fallback
+            const customMockupImage = getColorMockupImage(product.id, firstColor, 'thumb');
             
             return {
               id: product.id,
@@ -180,13 +191,14 @@ export default function Home() {
               name: generateSEOTitle(product.title, cityName),
               description: generateSEODescription(product.title, cityName),
               price: getProductPrice(product.variants),
-              image: getColorMockupImage(product.id, firstColor, 'thumb'),
+              image: customMockupImage,
               fallbackImage: product.images?.[0]?.src || null,
               city: cityName,
               variants: product.variants.filter(v => v.is_enabled),
               originalTitle: product.title,
               printifyId: product.id,
-              primaryColor: firstColor
+              primaryColor: firstColor,
+              createdAt: product.created_at || product.id // Add creation info for debugging
             }
           })
 
