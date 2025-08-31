@@ -11,6 +11,7 @@ export default function Layout({ children }) {
   
   const navigation = [
     { name: 'Home', href: '/' },
+    { name: 'Texas Gear', href: '/texas' },
     { name: 'Austin', href: '/austin' },
     { name: 'Dallas', href: '/dallas' },
     { name: 'Houston', href: '/houston' },

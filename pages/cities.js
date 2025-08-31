@@ -8,13 +8,13 @@ export default function AllCities() {
     { name: 'Dallas', slug: 'dallas', tagline: 'Big D Energy' },
     { name: 'Houston', slug: 'houston', tagline: 'Space City Style' },
     { name: 'San Antonio', slug: 'san-antonio', tagline: 'Alamo City Pride' },
+    { name: 'Fort Worth', slug: 'fort-worth', tagline: 'Where the West Begins' },
+    { name: 'El Paso', slug: 'el-paso', tagline: 'The Sun City' },
+    { name: 'Arlington', slug: 'arlington', tagline: 'The American Dream City' },
+    { name: 'Corpus Christi', slug: 'corpus-christi', tagline: 'The Sparkling City by the Sea' },
   ]
   
   const comingSoonCities = [
-    { name: 'Fort Worth', population: '918,915', famous: 'Cowtown Culture' },
-    { name: 'El Paso', population: '695,044', famous: 'Border City Pride' },
-    { name: 'Arlington', population: '394,266', famous: 'Sports Capital' },
-    { name: 'Corpus Christi', population: '317,863', famous: 'Coastal Vibes' },
     { name: 'Plano', population: '285,494', famous: 'Tech Hub' },
     { name: 'Lubbock', population: '258,862', famous: 'Red Raider Country' },
     { name: 'Laredo', population: '255,205', famous: 'Gateway City' },
