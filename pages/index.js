@@ -310,7 +310,7 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {featuredProducts.slice(4, 8).map((product) => (
+              {featuredProducts.slice(0, 4).map((product) => (
                 <div key={product.id} className="group">
                   <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     <Link href={`/product/${product.slug || product.id}`}>
@@ -362,7 +362,7 @@ export default function Home() {
               Latest Designs
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {featuredProducts.slice(0, 4).map((product) => (
+              {featuredProducts.slice(4, 8).map((product) => (
                 <div key={`latest-${product.id}`} className="group">
                   <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     <Link href={`/product/${product.slug || product.id}`}>
