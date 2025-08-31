@@ -39,36 +39,36 @@ export default async function handler(req, res) {
             .substring(0, 100); // Limit length to 100 chars
         };
 
-        // Get detailed product info including creation dates
-        console.log('Fetching detailed product info for', data.data?.length, 'products')
-        const detailedProducts = await Promise.all(
-          (data.data || []).slice(0, 10).map(async (product) => { // Limit to first 10 to avoid rate limits
-            try {
-              console.log(`Fetching details for product ${product.id}`)
-              // Fetch individual product details to get creation date
-              const detailResponse = await fetch(`https://api.printify.com/v1/shops/${SHOP_ID}/products/${product.id}.json`, {
-                headers
-              });
-              
-              if (detailResponse.ok) {
-                const detailData = await detailResponse.json();
-                console.log(`Product ${product.id} created_at:`, detailData.created_at)
-                return {
-                  ...product,
-                  created_at: detailData.created_at,
-                  updated_at: detailData.updated_at
-                };
-              } else {
-                console.error(`Failed to fetch product ${product.id}:`, detailResponse.status)
-              }
-            } catch (error) {
-              console.error(`Error fetching details for product ${product.id}:`, error);
-            }
+        // Test just one product to see what we get
+        console.log('Testing individual product fetch for Keep Austin Loud')
+        let detailedProducts = [...(data.data || [])]
+        
+        try {
+          const testProductId = '68afd1f5a85dd8cf040a3818' // Keep Austin Loud
+          const testResponse = await fetch(`https://api.printify.com/v1/shops/${SHOP_ID}/products/${testProductId}.json`, {
+            headers
+          });
+          
+          if (testResponse.ok) {
+            const testData = await testResponse.json();
+            console.log('Full individual product response:', JSON.stringify(testData, null, 2))
+            console.log('Creation date field:', testData.created_at)
             
-            // Return original product if detail fetch fails
-            return product;
-          })
-        );
+            // Update just this one product for now
+            const productIndex = detailedProducts.findIndex(p => p.id === testProductId)
+            if (productIndex !== -1) {
+              detailedProducts[productIndex] = {
+                ...detailedProducts[productIndex],
+                created_at: testData.created_at,
+                updated_at: testData.updated_at
+              }
+            }
+          } else {
+            console.error('Individual product fetch failed:', testResponse.status, await testResponse.text())
+          }
+        } catch (error) {
+          console.error('Error testing individual product fetch:', error)
+        }
 
         // Transform Printify data for your site
         const transformedProducts = detailedProducts.map(product => ({
