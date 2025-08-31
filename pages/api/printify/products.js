@@ -37,8 +37,34 @@ export default async function handler(req, res) {
             .substring(0, 50); // Limit length
         };
 
+        // Get detailed product info including creation dates
+        const detailedProducts = await Promise.all(
+          (data.data || []).map(async (product) => {
+            try {
+              // Fetch individual product details to get creation date
+              const detailResponse = await fetch(`https://api.printify.com/v1/shops/${SHOP_ID}/products/${product.id}.json`, {
+                headers
+              });
+              
+              if (detailResponse.ok) {
+                const detailData = await detailResponse.json();
+                return {
+                  ...product,
+                  created_at: detailData.created_at,
+                  updated_at: detailData.updated_at
+                };
+              }
+            } catch (error) {
+              console.error(`Failed to fetch details for product ${product.id}:`, error);
+            }
+            
+            // Return original product if detail fetch fails
+            return product;
+          })
+        );
+
         // Transform Printify data for your site
-        const transformedProducts = data.data?.map(product => ({
+        const transformedProducts = detailedProducts.map(product => ({
           id: product.id,
           title: product.title,
           slug: generateSlug(product.title),
@@ -58,7 +84,7 @@ export default async function handler(req, res) {
           created_at: product.created_at,
           updated_at: product.updated_at,
           visible: product.visible
-        })) || [];
+        }));
         
         return res.status(200).json({ 
           products: transformedProducts,

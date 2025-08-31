@@ -165,10 +165,15 @@ export default function Home() {
         console.log('API Response data:', data)
         
         if (data.products && data.products.length > 0) {
-          // Sort products by creation date (newest first) - use string comparison for large hex values
+          // Sort products by actual creation dates from Printify API
           const sortedProducts = data.products.sort((a, b) => {
-            // Compare hex IDs as strings (newer IDs are lexicographically larger)
-            return b.id.localeCompare(a.id) // Descending order (newest first)
+            console.log(`Sorting: ${a.title} (${a.created_at}) vs ${b.title} (${b.created_at})`)
+            // Use creation dates if available, fallback to hex ID comparison
+            if (a.created_at && b.created_at) {
+              return new Date(b.created_at) - new Date(a.created_at) // Newest first
+            }
+            // Fallback to hex ID comparison if dates unavailable
+            return b.id.localeCompare(a.id)
           })
           
           // Transform products with SEO optimization
