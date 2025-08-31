@@ -69,7 +69,7 @@ export default async function handler(req, res) {
         const transformedProducts = detailedProducts.map(product => ({
           id: product.id,
           title: product.title,
-          slug: getProductSlug(product.id, product.title),
+          slug: getProductSlug(product.id, product.title), // Custom slug or fallback to original generateSlug
           description: product.description,
           tags: product.tags,
           images: product.images,
