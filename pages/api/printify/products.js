@@ -51,18 +51,29 @@ export default async function handler(req, res) {
           
           if (testResponse.ok) {
             const testData = await testResponse.json();
-            console.log('Full individual product response:', JSON.stringify(testData, null, 2))
-            console.log('Creation date field:', testData.created_at)
+            console.log('All date-related fields found:')
+            console.log('- created_at:', testData.created_at)
+            console.log('- updated_at:', testData.updated_at) 
+            console.log('- publish_at:', testData.publish_at)
+            console.log('- Any other timestamps?', Object.keys(testData).filter(key => 
+              key.includes('date') || key.includes('time') || key.includes('created') || key.includes('updated')
+            ))
             
-            // Update just this one product for now
-            const productIndex = detailedProducts.findIndex(p => p.id === testProductId)
-            if (productIndex !== -1) {
-              detailedProducts[productIndex] = {
-                ...detailedProducts[productIndex],
-                created_at: testData.created_at,
-                updated_at: testData.updated_at
-              }
+            // Also test a different product to compare
+            console.log('Testing Houston product for comparison...')
+            const houstonResponse = await fetch(`https://api.printify.com/v1/shops/${SHOP_ID}/products/68a2acaa09de3a1de90e76bc.json`, {
+              headers
+            });
+            
+            if (houstonResponse.ok) {
+              const houstonData = await houstonResponse.json();
+              console.log('Houston product dates:')
+              console.log('- created_at:', houstonData.created_at)
+              console.log('- updated_at:', houstonData.updated_at)
+              console.log('- publish_at:', houstonData.publish_at)
             }
+            
+            // For now, don't update anything - let's see the data first
           } else {
             console.error('Individual product fetch failed:', testResponse.status, await testResponse.text())
           }
