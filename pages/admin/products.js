@@ -25,30 +25,55 @@ export default function AdminProducts() {
     try {
       setLoading(true)
       setError(null)
-      const response = await fetch(`/api/printify/products?t=${Date.now()}`, {
-  cache: 'no-cache'
-})
-      const data = await response.json()
       
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to load products')
+      // Load products and categories simultaneously
+      const [productsResponse, categoriesResponse] = await Promise.all([
+        fetch(`/api/printify/products?t=${Date.now()}`, { cache: 'no-cache' }),
+        fetch('/api/admin/categories')
+      ])
+      
+      const productsData = await productsResponse.json()
+      const categoriesData = await categoriesResponse.json()
+      
+      if (!productsResponse.ok) {
+        throw new Error(productsData.message || 'Failed to load products')
       }
       
-      // Transform Printify products for our admin table
-      const transformedProducts = data.products.map(product => ({
-        id: product.id,
-        name: product.title,
-        city: extractCityFromTitle(product.title) || 'Unknown',
-        price: getLowestVariantPrice(product.variants),
-        status: product.visible ? 'Active' : 'Draft',
-        printifyId: product.id,
-        description: product.description,
-        variants: product.variants || [],
-        images: product.images || [],
-        tags: product.tags || [],
-        created_at: product.created_at,
-        updated_at: product.updated_at
-      }))
+      // Transform Printify products with category information
+      const transformedProducts = productsData.products.map(product => {
+        const metadata = categoriesData.products[product.id]
+        const categories = metadata?.categories || []
+        
+        // Determine display city based on categories
+        let displayCity = 'Unassigned'
+        if (categories.includes('texas')) {
+          displayCity = 'Texas State'
+        } else if (categories.length > 0) {
+          // Show the first assigned city, formatted nicely
+          const firstCategory = categories[0]
+          displayCity = firstCategory === 'san-antonio' ? 'San Antonio' :
+                      firstCategory === 'fort-worth' ? 'Fort Worth' :
+                      firstCategory === 'el-paso' ? 'El Paso' :
+                      firstCategory === 'corpus-christi' ? 'Corpus Christi' :
+                      firstCategory.charAt(0).toUpperCase() + firstCategory.slice(1)
+        }
+        
+        return {
+          id: product.id,
+          name: product.title,
+          city: displayCity,
+          categories: categories,
+          price: getLowestVariantPrice(product.variants),
+          status: product.visible ? 'Active' : 'Draft',
+          printifyId: product.id,
+          description: product.description,
+          variants: product.variants || [],
+          images: product.images || [],
+          tags: product.tags || [],
+          created_at: product.created_at,
+          updated_at: product.updated_at
+        }
+      })
       
       setProducts(transformedProducts)
     } catch (error) {
@@ -65,13 +90,7 @@ export default function AdminProducts() {
     setRefreshing(false)
   }
 
-  // Helper function to extract city from product title
-  const extractCityFromTitle = (title) => {
-    const cityKeywords = ['Austin', 'Dallas', 'Houston', 'San Antonio']
-    return cityKeywords.find(city => 
-      title.toLowerCase().includes(city.toLowerCase())
-    )
-  }
+  // City display is now handled by the category system
 
   // Helper function to get lowest variant price
 const getLowestVariantPrice = (variants) => {
@@ -317,9 +336,24 @@ const getLowestVariantPrice = (variants) => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 py-1 text-xs font-medium bg-texas-gold text-texas-blue rounded-full">
-                        {product.city}
-                      </span>
+                      <div className="flex flex-wrap gap-1">
+                        {product.categories && product.categories.length > 0 ? (
+                          product.categories.map(category => (
+                            <span key={category} className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                              {category === 'texas' ? 'Texas State' : 
+                               category === 'san-antonio' ? 'San Antonio' :
+                               category === 'fort-worth' ? 'Fort Worth' :
+                               category === 'el-paso' ? 'El Paso' :
+                               category === 'corpus-christi' ? 'Corpus Christi' :
+                               category.charAt(0).toUpperCase() + category.slice(1)}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-full">
+                            Unassigned
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900 font-medium">
