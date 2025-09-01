@@ -87,7 +87,7 @@ const shippingInfo = paymentIntent.shipping || {
     const items = JSON.parse(metadata.items || '[]')
     const customerEmail = metadata.email
     const customerName = metadata.customer
-    const isTestMode = metadata.test_mode === 'true'
+    const isTestMode = false // Test mode removed - always create Printify orders
     
     console.log('📦 Processing order for:', customerEmail)
     console.log('📦 Items:', items)

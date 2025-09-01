@@ -12,7 +12,7 @@ function CheckoutForm({ total, formData, setFormData }) {
   const { state, dispatch } = useCart()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [testMode, setTestMode] = useState(true) // Toggle for testing
+  // Test mode removed - all orders go to production
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -27,8 +27,8 @@ function CheckoutForm({ total, formData, setFormData }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: testMode ? 0.50 : total, // Use 50 cents in test mode
-          testMode: testMode, // Pass test mode flag
+          amount: total, // Use actual cart total
+          testMode: false, // Always production mode
           metadata: {
             items: JSON.stringify(state.items),
             customer: `${formData.firstName} ${formData.lastName}`,
@@ -82,24 +82,7 @@ function CheckoutForm({ total, formData, setFormData }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* TEST MODE TOGGLE - REMOVE IN PRODUCTION */}
-      <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-bold">🧪 Test Mode Active</p>
-            <p className="text-sm">Payment will be $0.50 for testing. Toggle off for real payments.</p>
-          </div>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input 
-              type="checkbox" 
-              checked={testMode}
-              onChange={(e) => setTestMode(e.target.checked)}
-              className="sr-only peer"
-            />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-          </label>
-        </div>
-      </div>
+      {/* Test mode removed - all orders go to production */}
 
       {/* Existing form fields... */}
       <div>
