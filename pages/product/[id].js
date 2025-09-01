@@ -271,6 +271,14 @@ export default function ProductPage() {
               </div>
             )}
 
+            {/* Free Shipping Message */}
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+              <div className="flex items-center justify-center text-green-700 font-medium">
+                <span className="text-lg mr-2">🚚</span>
+                FREE SHIPPING on all orders
+              </div>
+            </div>
+
             {/* Add to Cart */}
             <div className="space-y-4">
               <button

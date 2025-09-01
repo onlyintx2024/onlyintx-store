@@ -233,7 +233,7 @@ export default function Checkout() {
   })
   
   const subtotal = state.items.reduce((total, item) => total + ((item.price / 100) * item.quantity), 0)
-  const shipping = subtotal > 50 ? 0 : 7.99
+  const shipping = 0 // FREE SHIPPING ALWAYS!
   const total = subtotal + shipping
   
   // Add this check
@@ -296,7 +296,10 @@ export default function Checkout() {
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping</span>
-                  <span>{shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}</span>
+                  <span className="text-green-600 font-semibold">FREE!</span>
+                </div>
+                <div className="text-sm text-green-600 font-medium bg-green-50 p-2 rounded">
+                  🚚 Free shipping on all orders
                 </div>
                 <div className="border-t pt-3">
                   <div className="flex justify-between font-semibold text-lg">

@@ -59,28 +59,30 @@ const saveSettings = (settings) => {
   }
 }
 
-export default requireAuth(async function handler(req, res) {
+export default async function handler(req, res) {
   try {
     switch (req.method) {
       case 'GET':
-        // Get current settings
+        // Get current settings (publicly accessible for shipping rates)
         const settings = loadSettings()
         return res.status(200).json(settings)
 
       case 'POST':
       case 'PUT':
-        // Update settings
-        const currentSettings = loadSettings()
-        const updatedSettings = {
-          ...currentSettings,
-          ...req.body
-        }
-        
-        const savedSettings = saveSettings(updatedSettings)
-        return res.status(200).json({
-          message: 'Settings saved successfully',
-          settings: savedSettings
-        })
+        // Update settings (requires auth)
+        return requireAuth(async (req, res) => {
+          const currentSettings = loadSettings()
+          const updatedSettings = {
+            ...currentSettings,
+            ...req.body
+          }
+          
+          const savedSettings = saveSettings(updatedSettings)
+          return res.status(200).json({
+            message: 'Settings saved successfully',
+            settings: savedSettings
+          })
+        })(req, res)
 
       default:
         res.setHeader('Allow', ['GET', 'POST', 'PUT'])

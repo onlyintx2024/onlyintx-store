@@ -7,24 +7,8 @@ import { getColorMockupImage } from '../utils/mockupMapping'
 
 export default function Cart() {
   const { state, dispatch } = useCart()
-  const [shippingCost, setShippingCost] = useState(7.99)
-  
-  // Load shipping cost from admin settings
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        const response = await fetch('/api/settings')
-        const data = await response.json()
-        if (data.shippingRate) {
-          setShippingCost(parseFloat(data.shippingRate))
-        }
-      } catch (error) {
-        console.error('Error loading settings:', error)
-        // Keep default $7.99 if settings fail to load
-      }
-    }
-    loadSettings()
-  }, [])
+  // FREE SHIPPING ALWAYS!
+  const shippingCost = 0
   
   const updateQuantity = (id, size, color, variantId, quantity) => {
     if (quantity <= 0) {
@@ -39,7 +23,7 @@ export default function Cart() {
   }
   
   const subtotal = state.items.reduce((total, item) => total + ((item.price / 100) * item.quantity), 0)
-  const shipping = subtotal > 50 ? 0 : shippingCost
+  const shipping = 0 // FREE SHIPPING ALWAYS!
   const total = subtotal + shipping
   
   if (state.items.length === 0) {
@@ -152,13 +136,11 @@ export default function Cart() {
                   </div>
                   <div className="flex justify-between">
                     <span>Shipping</span>
-                    <span>{shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}</span>
+                    <span className="text-green-600 font-semibold">FREE!</span>
                   </div>
-                  {subtotal < 50 && (
-                    <p className="text-sm text-green-600">
-                      Add ${(50 - subtotal).toFixed(2)} more for free shipping!
-                    </p>
-                  )}
+                  <p className="text-sm text-green-600 font-medium bg-green-50 p-2 rounded">
+                    🚚 Free shipping on all orders - always!
+                  </p>
                   <div className="border-t pt-3">
                     <div className="flex justify-between font-semibold text-lg">
                       <span>Total</span>

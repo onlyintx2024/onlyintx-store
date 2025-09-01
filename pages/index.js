@@ -238,10 +238,14 @@ export default function Home() {
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
             Texas Pride, <span className="text-texas-gold">Authentic Style</span>
           </h1>
-          <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
+          <p className="text-xl md:text-2xl mb-4 max-w-3xl mx-auto">
             Discover premium apparel celebrating every corner of the Lone Star State. 
             From big cities to small towns, we've got your Texas pride covered.
           </p>
+          <div className="bg-green-500 text-white px-6 py-2 rounded-full inline-block mb-6 font-semibold">
+            🚚 FREE SHIPPING ON ALL ORDERS
+          </div>
+          <br />
           <Link 
             href="/cities" 
             className="inline-block bg-texas-gold text-texas-blue px-8 py-4 rounded-lg font-semibold text-lg hover:bg-yellow-400 transition-colors duration-300"
@@ -432,8 +436,8 @@ export default function Home() {
               <div className="w-16 h-16 bg-texas-gold rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-texas-blue">🚚</span>
               </div>
-              <h3 className="text-xl font-semibold mb-4">Fast Shipping</h3>
-              <p className="text-gray-200">Free shipping on orders over $50. Get your Texas gear delivered fast anywhere in the US.</p>
+              <h3 className="text-xl font-semibold mb-4">FREE Shipping</h3>
+              <p className="text-gray-200">Always free shipping on ALL orders. Get your Texas gear delivered fast anywhere in the US.</p>
             </div>
           </div>
         </div>
