@@ -218,17 +218,17 @@ export default function ProductPage() {
 
             {product.description && (
               <div className="prose max-w-none">
-                <div 
-                  className="text-gray-700"
-                  dangerouslySetInnerHTML={{ 
-                    __html: product.description
-                      .replace(/<p[^>]*>/gi, '')  // Remove opening <p> tags (case insensitive)
-                      .replace(/<\/p>/gi, '')     // Remove closing </p> tags (case insensitive)
-                      .replace(/<P[^>]*>/g, '')   // Remove opening <P> tags
-                      .replace(/<\/P>/g, '')      // Remove closing </P> tags
-                      .trim()                     // Remove extra whitespace
-                  }}
-                />
+                <div className="text-gray-700">
+                  {/* Strip all HTML tags and show as plain text */}
+                  {product.description
+                    .replace(/<[^>]*>/g, '')  // Remove all HTML tags
+                    .replace(/&nbsp;/g, ' ')  // Replace &nbsp; with regular spaces
+                    .replace(/&amp;/g, '&')  // Replace &amp; with &
+                    .replace(/&lt;/g, '<')   // Replace &lt; with <
+                    .replace(/&gt;/g, '>')   // Replace &gt; with >
+                    .trim()                   // Remove extra whitespace
+                  }
+                </div>
               </div>
             )}
 
