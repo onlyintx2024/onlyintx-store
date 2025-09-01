@@ -6,9 +6,12 @@ OnlyInTX is a live production Texas-themed e-commerce store selling city-specifi
 **Live Site:** https://onlyintx.com  
 **Admin Panel:** https://onlyintx.com/admin  
 
-## Current Status - READY FOR ORDER TESTING ✅
+## Current Status - PAYMENT PROCESSING ISSUE ⚠️
 
 ### Recently Completed Features
+- ✅ **FREE SHIPPING EVERYWHERE** - Eliminated all shipping costs, prominent messaging site-wide
+- ✅ **Category Persistence Fixed** - Categories now save permanently via file storage
+- ✅ **Admin System Unified** - All admin pages sync category data properly  
 - ✅ **8 City Pages** - Austin, Dallas, Houston, San Antonio, Fort Worth, El Paso, Arlington, Corpus Christi
 - ✅ **Texas State Gear Section** - Dedicated /texas page with category filtering
 - ✅ **Product Category Management** - Full admin system for assigning products to cities/texas
@@ -16,6 +19,9 @@ OnlyInTX is a live production Texas-themed e-commerce store selling city-specifi
 - ✅ **Product Sorting System** - Manual priority-based sorting (Houston=1, Austin Loud=5)
 - ✅ **Custom Slug Management** - Admin interface for SEO-friendly product URLs
 - ✅ **Admin Dashboard** - Products, Categories, Orders, Slugs, Settings management
+
+### ⚠️ CRITICAL ISSUE IDENTIFIED
+**Payment Processing Broken**: Stripe payments go through but orders don't appear in admin/Printify
 
 ### Architecture & Integration
 - **Frontend:** Next.js 14 with Tailwind CSS
@@ -31,32 +37,25 @@ OnlyInTX is a live production Texas-themed e-commerce store selling city-specifi
 
 ## Next Session Priorities
 
-### 1. IMMEDIATE - Test Real Order Flow 🚨
-**Priority:** CRITICAL - This is production testing
-- Place actual test order end-to-end
-- Verify Stripe payment processing
-- Check Printify order fulfillment
-- Validate order tracking in admin
-- Test webhook processing
+### 1. 🚨 CRITICAL - Fix Payment Processing Pipeline
+**Priority:** URGENT - Orders not being created despite successful Stripe payments
+- **Issue**: Stripe payment succeeded but no orders in admin/Printify
+- **Investigate**: Webhook processing (`/api/stripe/webhook.js`)
+- **Check**: Order creation flow from payment to Printify
+- **Verify**: Stripe webhook configuration and endpoints
+- **Test**: Complete end-to-end order flow again
 
-### 2. Product Category Assignment
-**Location:** `/admin/categories`
-- Assign existing products to appropriate categories:
-  - Houston product → 'houston' category
-  - Austin products → 'austin' category  
-  - State-wide designs → 'texas' category
-- Verify products appear on correct city/texas pages
+### 2. Complete Order System Validation  
+- Ensure orders appear in `/admin/orders`
+- Verify Printify order creation
+- Test order tracking and fulfillment
+- Validate webhook processing logs
 
-### 3. Expand Product Catalog
-- Add 2-3 new products via Printify
-- Create custom mockups for new products
-- Assign categories and test display
-
-### 4. Final Polish for Launch
+### 3. Final Launch Preparation
 - Performance optimization
-- SEO meta tag review
-- Error handling improvements
+- SEO meta tag review  
 - Marketing preparation
+- Go-live checklist
 
 ## Technical Context
 
@@ -148,6 +147,18 @@ const metadata = getProductMetadata(product.id) // ❌ Breaks on client
 - Admin category management functional
 - Site ready for marketing launch
 
+## Session History
+
+### Session 2025-09-01 - FREE SHIPPING & CATEGORY FIXES ✅
+**Completed:**
+- ✅ Implemented FREE SHIPPING site-wide with prominent messaging
+- ✅ Fixed category persistence issue (converted to file storage)
+- ✅ Unified admin category system across all pages
+- ✅ Resolved client/server separation build errors
+
+**Critical Issue Discovered:** 
+- ⚠️ Payment processing broken - Stripe payments succeed but no orders created
+
 ---
-**Last Updated:** Session ending 2025-08-31
-**Next Session Goal:** Complete order testing and finalize for launch
+**Last Updated:** Session ending 2025-09-01
+**Next Session Goal:** Fix payment processing pipeline and complete order testing
