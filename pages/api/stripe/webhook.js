@@ -172,11 +172,12 @@ async function createPrintifyOrder(item, order, shippingInfo) {
   const SHOP_ID = '18727817'
   
   try {
-    console.log('🔍 Fetching product details for:', item.id)
+    console.log('🔍 Fetching product details for product:', item.productId, 'variant:', item.variantId)
     
-    // Get product details from Printify
+    // Get product details from Printify using productId, not variant id
+    const productId = item.productId || item.id
     const productResponse = await fetch(
-      `https://api.printify.com/v1/shops/${SHOP_ID}/products/${item.id}.json`,
+      `https://api.printify.com/v1/shops/${SHOP_ID}/products/${productId}.json`,
       {
         headers: {
           'Authorization': `Bearer ${PRINTIFY_API_KEY}`,
@@ -221,7 +222,7 @@ async function createPrintifyOrder(item, order, shippingInfo) {
       label: `OnlyInTX Order ${order.id}`,
       line_items: [
         {
-          product_id: item.id,
+          product_id: item.productId || item.id, // Use productId for Printify
           variant_id: variant.id,
           quantity: item.quantity || 1
         }
