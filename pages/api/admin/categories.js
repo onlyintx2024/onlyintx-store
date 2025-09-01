@@ -1,4 +1,5 @@
-import { updateProductCategories, getProductMetadata, getAvailableCategories, getAllProductMetadata, initializeProductIfNeeded } from '../../../lib/productMetadata'
+import { getAvailableCategories } from '../../../lib/productMetadata'
+import { updateProductCategoriesServer, getProductMetadataServer, getAllProductMetadataServer, loadMetadata, saveMetadata } from '../../../lib/serverMetadata'
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
@@ -6,7 +7,7 @@ export default async function handler(req, res) {
     
     if (productId) {
       // Get categories for a specific product
-      const metadata = getProductMetadata(productId)
+      const metadata = getProductMetadataServer(productId)
       return res.status(200).json({ 
         categories: metadata?.categories || [],
         available: getAvailableCategories()
@@ -24,17 +25,34 @@ export default async function handler(req, res) {
         
         if (printifyResponse.ok) {
           const printifyData = await printifyResponse.json()
+          const metadata = loadMetadata()
+          let hasChanges = false
+          
           // Initialize any new products that don't have metadata yet
           printifyData.data?.forEach(product => {
-            initializeProductIfNeeded(product.id)
+            if (!metadata[product.id]) {
+              const orders = Object.values(metadata).map(p => p.designOrder || 0)
+              const nextOrder = Math.max(...orders, 0) + 1
+              metadata[product.id] = {
+                designOrder: nextOrder,
+                unitsSold: 0,
+                categories: []
+              }
+              hasChanges = true
+              console.log(`Auto-initialized product ${product.id} with design order ${nextOrder}`)
+            }
           })
+          
+          if (hasChanges) {
+            saveMetadata(metadata)
+          }
         }
       } catch (error) {
         console.warn('Could not sync with Printify products:', error)
         // Continue anyway with existing metadata
       }
       
-      const allMetadata = getAllProductMetadata()
+      const allMetadata = getAllProductMetadataServer()
       return res.status(200).json({ 
         products: allMetadata,
         available: getAvailableCategories()
@@ -50,7 +68,7 @@ export default async function handler(req, res) {
     }
     
     try {
-      const updatedMetadata = updateProductCategories(productId, categories)
+      const updatedMetadata = updateProductCategoriesServer(productId, categories)
       return res.status(200).json({ 
         success: true, 
         metadata: updatedMetadata 
