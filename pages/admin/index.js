@@ -166,6 +166,14 @@ export default function AdminDashboard() {
               </Link>
               
               <Link
+                href="/admin/categories"
+                className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 hover:bg-indigo-100 transition-colors"
+              >
+                <h4 className="font-semibold text-indigo-900">Product Categories</h4>
+                <p className="text-sm text-indigo-700">Assign products to cities and Texas state</p>
+              </Link>
+              
+              <Link
                 href="/admin/orders"
                 className="bg-green-50 border border-green-200 rounded-lg p-4 hover:bg-green-100 transition-colors"
               >
