@@ -3,7 +3,8 @@
     "allow": [
       "Bash(git push:*)",
       "Bash(npm run build:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "WebFetch(domain:onlyintx.com)"
     ],
     "deny": [],
     "ask": []
