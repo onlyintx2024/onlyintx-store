@@ -288,7 +288,9 @@ export default function Home() {
       <section className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
-            Best Selling Texas Gear
+            {featuredProducts.filter(product => product.unitsSold > 0).length > 0 
+              ? 'Best Selling Texas Gear' 
+              : 'Featured Texas Gear'}
           </h2>
           
           {loading ? (
@@ -302,9 +304,13 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {featuredProducts
-                .sort((a, b) => b.unitsSold - a.unitsSold) // Sort by units sold (highest first)
-                .slice(0, 4).map((product) => (
+              {(featuredProducts.filter(product => product.unitsSold > 0).length > 0
+                ? featuredProducts
+                    .filter(product => product.unitsSold > 0) // Only show products with actual sales
+                    .sort((a, b) => b.unitsSold - a.unitsSold) // Sort by units sold (highest first)
+                : featuredProducts
+                    .sort((a, b) => b.designOrder - a.designOrder) // Fallback to newest designs if no sales yet
+              ).slice(0, 4).map((product) => (
                 <div key={product.id} className="group">
                   <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     <Link href={`/product/${product.slug || product.id}`}>

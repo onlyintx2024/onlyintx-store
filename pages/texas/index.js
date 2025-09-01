@@ -3,7 +3,6 @@ import Head from 'next/head'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
-import { getProductMetadata } from '../../lib/productMetadata'
 import { getColorMockupImage } from '../../utils/mockupMapping'
 
 export default function TexasGear() {
@@ -13,13 +12,17 @@ export default function TexasGear() {
   useEffect(() => {
     const loadTexasProducts = async () => {
       try {
-        const response = await fetch('/api/printify/products')
-        const data = await response.json()
+        // Fetch categories via API endpoint (CORRECT PATTERN)
+        const categoriesResponse = await fetch('/api/admin/categories')
+        const categoriesData = await categoriesResponse.json()
         
-        if (response.ok) {
+        const productsResponse = await fetch('/api/printify/products')
+        const data = await productsResponse.json()
+        
+        if (categoriesResponse.ok && productsResponse.ok) {
           // Filter for products categorized as "texas" state gear
           const texasProducts = data.products.filter(product => {
-            const metadata = getProductMetadata(product.id)
+            const metadata = categoriesData.products[product.id]
             return metadata?.categories?.includes('texas') || false
           }).map(product => {
             // Get the first available color from enabled variants for thumbnail

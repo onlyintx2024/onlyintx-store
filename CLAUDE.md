@@ -113,6 +113,35 @@ git add -A && git commit -m "message" && git push
 - Manual category assignment required for new products
 - SEO: Never change existing product slugs (breaks indexing)
 
+## IMPORTANT: Category-Based Pages Pattern 🚨
+
+### When creating pages that filter products by categories:
+**NEVER** import `getProductMetadata` directly in client-side components. This function is server-only.
+
+**CORRECT PATTERN:**
+```javascript
+// Fetch categories via API endpoint
+const response = await fetch('/api/admin/categories')
+const categoriesData = await response.json()
+
+// Filter products using API data
+const filteredProducts = products.filter(product => {
+  const metadata = categoriesData.products[product.id]
+  return metadata?.categories?.includes('target-category') || false
+})
+```
+
+**WRONG PATTERN:**
+```javascript
+import { getProductMetadata } from '../lib/productMetadata' // ❌ Server-only function
+const metadata = getProductMetadata(product.id) // ❌ Breaks on client
+```
+
+### Best Sellers vs Latest Designs Logic:
+- **Best Sellers:** Sort by `unitsSold` (products with sales > 0)
+- **Latest Designs:** Sort by `designOrder` (newest design = highest number)
+- New products have `unitsSold: 0` and should NOT appear in Best Sellers
+
 ## Success Metrics
 - Real order processing works end-to-end
 - Products display in correct categories
