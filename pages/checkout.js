@@ -197,7 +197,7 @@ function CheckoutForm({ total, formData, setFormData }) {
             : 'bg-texas-blue hover:bg-blue-700'
         } text-white transition-colors duration-200`}
       >
-        {isLoading ? 'Processing...' : `Pay $${(testMode ? 0.50 : total).toFixed(2)}`}
+        {isLoading ? 'Processing...' : `Pay $${total.toFixed(2)}`}
       </button>
     </form>
   )
