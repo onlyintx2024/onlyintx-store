@@ -12,7 +12,7 @@ function CheckoutForm({ total, formData, setFormData }) {
   const { state, dispatch } = useCart()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
-  // Test mode removed - all orders go to production
+  const testMode = false // Test mode disabled - all orders go to production
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -28,7 +28,7 @@ function CheckoutForm({ total, formData, setFormData }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           amount: total, // Use actual cart total
-          testMode: false, // Always production mode
+          testMode: testMode, // Always false - production mode
           metadata: {
             items: JSON.stringify(state.items),
             customer: `${formData.firstName} ${formData.lastName}`,
