@@ -169,3 +169,12 @@ const metadata = getProductMetadata(product.id) // ❌ Breaks on client
 ---
 **Last Updated:** Session 2025-09-01 (Payment Processing Fix)
 **Next Session Goal:** Test and validate the fixed payment processing system
+
+## COMMIT REQUIREMENT - CRITICAL ⚠️
+**ALWAYS commit and push changes at the end of each session or major task:**
+1. Check `git status` before finishing any task
+2. If there are uncommitted changes, ALWAYS commit them with descriptive messages  
+3. ALWAYS push to deploy changes to production
+4. NEVER finish a session without checking and committing outstanding changes
+5. Use TodoWrite to track "Commit and push changes" as a final task when needed
+6. **This is a PRODUCTION site - uncommitted changes cost real money in testing!**
