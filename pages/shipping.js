@@ -6,7 +6,7 @@ export default function Shipping() {
     <Layout>
       <Head>
         <title>Shipping Information - OnlyInTX | Fast Texas Pride Delivery</title>
-        <meta name="description" content="OnlyInTX shipping info: Free shipping on orders over $50. Fast delivery of Texas pride apparel across the US. View shipping rates and delivery times." />
+        <meta name="description" content="OnlyInTX shipping info: Always FREE shipping on ALL orders. Fast delivery of Texas pride apparel across the US. No minimums required." />
       </Head>
       
       <div className="min-h-screen bg-gray-50 py-16">
@@ -22,43 +22,28 @@ export default function Shipping() {
           </div>
           
           {/* Free Shipping Banner */}
-          <div className="bg-texas-red text-white rounded-lg p-6 mb-8 text-center">
-            <h2 className="text-2xl font-bold mb-2">🚚 FREE SHIPPING ON ORDERS OVER $50!</h2>
-            <p className="text-lg">Get your Texas gear delivered fast with free shipping on qualifying orders</p>
+          <div className="bg-green-500 text-white rounded-lg p-6 mb-8 text-center">
+            <h2 className="text-3xl font-bold mb-2">🚚 FREE SHIPPING ON ALL ORDERS!</h2>
+            <p className="text-xl">Always free shipping - no minimums, no conditions</p>
           </div>
           
           {/* Shipping Options */}
           <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-            <h2 className="text-3xl font-bold text-texas-blue mb-6">Shipping Options & Rates</h2>
+            <h2 className="text-3xl font-bold text-texas-blue mb-6">Shipping & Delivery</h2>
             
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Shipping Method</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Delivery Time</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cost</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  <tr>
-                    <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">Standard Shipping</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">5-7 Business Days</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">$7.99 (FREE over $50)</td>
-                  </tr>
-                  <tr>
-                    <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">Express Shipping</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">3-4 Business Days</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">$12.99</td>
-                  </tr>
-                  <tr>
-                    <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">Priority Shipping</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">1-2 Business Days</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">$19.99</td>
-                  </tr>
-                </tbody>
-              </table>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+              <h3 className="text-xl font-bold text-green-800 mb-2">✨ Standard Shipping - Always FREE</h3>
+              <div className="text-green-700">
+                <p className="mb-2"><strong>Delivery Time:</strong> 5-7 Business Days</p>
+                <p className="mb-2"><strong>Cost:</strong> FREE on all orders</p>
+                <p><strong>Tracking:</strong> Full tracking provided via email</p>
+              </div>
             </div>
+            
+            <p className="text-gray-600 text-center">
+              We believe in making Texas pride accessible to everyone, so we've eliminated all shipping fees. 
+              Every order ships free, no matter the size!
+            </p>
           </div>
           
           {/* Processing Time */}

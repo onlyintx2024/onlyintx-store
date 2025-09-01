@@ -150,7 +150,7 @@ export default function CityPage({ city }) {
     <>
       <Head>
         <title>{city.name}, Texas Apparel & Gifts | OnlyInTX - {city.tagline}</title>
-        <meta name="description" content={`${city.description} Shop authentic ${city.name} t-shirts, hoodies, and gifts. Free shipping on orders over $50.`} />
+        <meta name="description" content={`${city.description} Shop authentic ${city.name} t-shirts, hoodies, and gifts. Always free shipping on all orders.`} />
         <meta name="keywords" content={city.keywords} />
         <link rel="canonical" href={`https://onlyintx.com/${city.slug}`} />
         
