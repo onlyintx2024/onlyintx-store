@@ -110,27 +110,38 @@ const shippingInfo = paymentIntent.shipping || {
     
     // Save order to persistent storage
     console.log('💾 Attempting to save order to persistent storage:', order.id)
+    console.log('📄 Order details:', JSON.stringify(order, null, 2))
     const saveResult = await saveOrder(order)
+    console.log('💾 Save result:', saveResult)
     if (!saveResult) {
       console.error('❌ Failed to save order to persistent storage')
+      throw new Error('Failed to save order - aborting webhook')
+    } else {
+      console.log('✅ Order saved successfully to persistent storage')
     }
     
     // Create orders in Printify for each item (skip if test mode)
     const printifyResults = []
+    console.log('🔍 Test mode check - isTestMode:', isTestMode, '(should be false)')
     if (isTestMode) {
       console.log('🧪 Test mode active - skipping Printify order creation')
     } else {
+      console.log('🏭 Production mode - creating Printify orders for', items.length, 'items')
       for (const item of items) {
         try {
+          console.log('🔄 Processing item for Printify:', item.id, item.name)
           const printifyOrder = await createPrintifyOrder(item, order, shippingInfo)
           if (printifyOrder) {
             printifyResults.push(printifyOrder.id)
             console.log('✅ Printify order created:', printifyOrder.id)
+          } else {
+            console.log('⚠️ Printify order creation returned null for item:', item.id)
           }
         } catch (printifyError) {
           console.error('❌ Failed to create Printify order for item:', item.id, printifyError)
         }
       }
+      console.log('🏭 Printify processing complete. Created orders:', printifyResults.length)
     }
     
     // Update order with Printify IDs
