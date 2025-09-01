@@ -1,0 +1,32 @@
+{
+  "68a2acaa09de3a1de90e76bc": {
+    "designOrder": 1,
+    "unitsSold": 1,
+    "categories": ["houston"]
+  },
+  "68a2b13ab9d87186e105fab5": {
+    "designOrder": 2,
+    "unitsSold": 2,
+    "categories": ["san-antonio"]
+  },
+  "68a2bc1b87987a828a0b6a4b": {
+    "designOrder": 3,
+    "unitsSold": 3,
+    "categories": ["dallas"]
+  },
+  "68a2bcee571c2c156d0885f8": {
+    "designOrder": 4,
+    "unitsSold": 4,
+    "categories": ["austin"]
+  },
+  "68afd1f5a85dd8cf040a3818": {
+    "designOrder": 5,
+    "unitsSold": 0,
+    "categories": ["austin"]
+  },
+  "68b506eb0502fbdf1c062ebc": {
+    "designOrder": 6,
+    "unitsSold": 0,
+    "categories": ["texas"]
+  }
+}
