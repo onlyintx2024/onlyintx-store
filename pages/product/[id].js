@@ -221,7 +221,12 @@ export default function ProductPage() {
                 <div 
                   className="text-gray-700"
                   dangerouslySetInnerHTML={{ 
-                    __html: product.description.replace(/<p[^>]*>/g, '').replace(/<\/p>/g, '') 
+                    __html: product.description
+                      .replace(/<p[^>]*>/gi, '')  // Remove opening <p> tags (case insensitive)
+                      .replace(/<\/p>/gi, '')     // Remove closing </p> tags (case insensitive)
+                      .replace(/<P[^>]*>/g, '')   // Remove opening <P> tags
+                      .replace(/<\/P>/g, '')      // Remove closing </P> tags
+                      .trim()                     // Remove extra whitespace
                   }}
                 />
               </div>
