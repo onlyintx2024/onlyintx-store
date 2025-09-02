@@ -168,7 +168,7 @@ const shippingInfo = paymentIntent.shipping || {
 }
 
 async function createPrintifyOrder(item, order, shippingInfo) {
-  const PRINTIFY_API_KEY = process.env.PRINTIFY_API_KEY
+  const PRINTIFY_API_KEY = process.env.PRINTIFY_API_TOKEN
   const SHOP_ID = '18727817'
   
   try {
