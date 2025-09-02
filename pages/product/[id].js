@@ -219,23 +219,39 @@ export default function ProductPage() {
             {product.description && (
               <div className="prose max-w-none">
                 <div className="text-gray-700">
-                  {/* Clean HTML description - server-safe approach */}
-                  {product.description
-                    // Remove all HTML tags completely
-                    .replace(/<[^>]*>/g, '')
-                    // Decode common HTML entities
-                    .replace(/&lt;/g, '<')
-                    .replace(/&gt;/g, '>')
-                    .replace(/&amp;/g, '&')
-                    .replace(/&quot;/g, '"')
-                    .replace(/&#39;/g, "'")
-                    .replace(/&nbsp;/g, ' ')
-                    // Remove any remaining encoded tags that might have been missed
-                    .replace(/&lt;\/?\w+[^&]*&gt;/g, '')
-                    // Normalize whitespace 
-                    .replace(/\s+/g, ' ')
-                    .trim()
-                  }
+                  {/* DEBUG: Show raw description first */}
+                  {process.env.NODE_ENV === 'development' && (
+                    <details className="mb-4 p-2 bg-yellow-100 text-xs">
+                      <summary>Debug: Raw Description</summary>
+                      <pre>{JSON.stringify(product.description, null, 2)}</pre>
+                    </details>
+                  )}
+                  
+                  {/* Clean HTML description - more aggressive approach */}
+                  {(() => {
+                    let cleaned = product.description
+                    console.log('Original description:', cleaned)
+                    
+                    // First pass: decode entities
+                    cleaned = cleaned
+                      .replace(/&lt;/g, '<')
+                      .replace(/&gt;/g, '>')
+                      .replace(/&amp;/g, '&')
+                      .replace(/&quot;/g, '"')
+                      .replace(/&#39;/g, "'")
+                      .replace(/&nbsp;/g, ' ')
+                    
+                    // Second pass: remove ALL variations of tags
+                    cleaned = cleaned
+                      .replace(/<\/?[^>]+(>|$)/g, '')  // Standard HTML tags
+                      .replace(/&lt;\/?[^&]*&gt;/g, '') // Encoded HTML tags
+                      .replace(/<[^>]*>/g, '')         // Any remaining tags
+                      .replace(/\s+/g, ' ')            // Normalize whitespace
+                      .trim()
+                    
+                    console.log('Cleaned description:', cleaned)
+                    return cleaned
+                  })()}
                 </div>
               </div>
             )}

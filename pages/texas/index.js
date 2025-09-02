@@ -76,7 +76,7 @@ export default function TexasGear() {
       <section className="relative h-96 md:h-[500px] overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/images/texas-hero.jpg"
+            src="/images/texas-hero.jpg?v=1"
             alt="Texas State Flag and Lone Star"
             fill
             priority
