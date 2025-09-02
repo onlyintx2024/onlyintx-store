@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import { useCart } from '../../context/CartContext';
 import { getColorMockupImage, getProductMockups } from '../../utils/mockupMapping';
+import { getProductDescription } from '../../utils/textUtils';
 
 export default function ProductPage() {
   const router = useRouter();
@@ -219,39 +220,7 @@ export default function ProductPage() {
             {product.description && (
               <div className="prose max-w-none">
                 <div className="text-gray-700">
-                  {/* DEBUG: Show raw description first */}
-                  {process.env.NODE_ENV === 'development' && (
-                    <details className="mb-4 p-2 bg-yellow-100 text-xs">
-                      <summary>Debug: Raw Description</summary>
-                      <pre>{JSON.stringify(product.description, null, 2)}</pre>
-                    </details>
-                  )}
-                  
-                  {/* Clean HTML description - more aggressive approach */}
-                  {(() => {
-                    let cleaned = product.description
-                    console.log('Original description:', cleaned)
-                    
-                    // First pass: decode entities
-                    cleaned = cleaned
-                      .replace(/&lt;/g, '<')
-                      .replace(/&gt;/g, '>')
-                      .replace(/&amp;/g, '&')
-                      .replace(/&quot;/g, '"')
-                      .replace(/&#39;/g, "'")
-                      .replace(/&nbsp;/g, ' ')
-                    
-                    // Second pass: remove ALL variations of tags
-                    cleaned = cleaned
-                      .replace(/<\/?[^>]+(>|$)/g, '')  // Standard HTML tags
-                      .replace(/&lt;\/?[^&]*&gt;/g, '') // Encoded HTML tags
-                      .replace(/<[^>]*>/g, '')         // Any remaining tags
-                      .replace(/\s+/g, ' ')            // Normalize whitespace
-                      .trim()
-                    
-                    console.log('Cleaned description:', cleaned)
-                    return cleaned
-                  })()}
+                  {getProductDescription(product, 'Premium quality apparel')}
                 </div>
               </div>
             )}

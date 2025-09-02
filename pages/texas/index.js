@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { getColorMockupImage } from '../../utils/mockupMapping'
+import { getProductDescription } from '../../utils/textUtils'
 
 export default function TexasGear() {
   const [products, setProducts] = useState([])
@@ -34,7 +35,7 @@ export default function TexasGear() {
               id: product.id,
               slug: product.slug,
               name: product.title,
-              description: product.description || 'Premium Texas state pride apparel',
+              description: getProductDescription(product, 'Premium Texas state pride apparel'),
               price: getLowestVariantPrice(product.variants),
               image: getColorMockupImage(product.id, firstColor, 'thumb'),
               fallbackImage: product.images?.[0]?.src || '/images/texas-default.jpg',
@@ -162,19 +163,7 @@ export default function TexasGear() {
                       </h3>
                     </Link>
                     <p className="text-sm text-gray-600 mb-4">
-                      {/* Clean HTML from description like on product pages */}
-                      {product.description
-                        ?.replace(/<\/?[^>]+(>|$)/g, '')  // Remove HTML tags
-                        .replace(/&lt;/g, '<')
-                        .replace(/&gt;/g, '>')
-                        .replace(/&amp;/g, '&')
-                        .replace(/&quot;/g, '"')
-                        .replace(/&#39;/g, "'")
-                        .replace(/&nbsp;/g, ' ')
-                        .replace(/&lt;\/?[^&]*&gt;/g, '') // Remove encoded HTML tags
-                        .replace(/\s+/g, ' ')
-                        .trim() || 'Premium Texas state pride apparel'
-                      }
+                      {product.description}
                     </p>
                     <div className="text-right">
                       <Link 

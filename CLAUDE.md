@@ -38,6 +38,7 @@ OnlyInTX is a live production Texas-themed e-commerce store selling city-specifi
 - `lib/productMetadata.js` - Product categorization and sorting
 - `utils/mockupMapping.js` - Custom mockup image management
 - `lib/slugs.js` - Custom URL slug management
+- `utils/textUtils.js` - HTML cleaning and text utilities (USE FOR ALL PRODUCT DESCRIPTIONS)
 
 ## Next Session Priorities
 
