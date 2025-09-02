@@ -161,7 +161,21 @@ export default function TexasGear() {
                         {product.name}
                       </h3>
                     </Link>
-                    <p className="text-sm text-gray-600 mb-4">{product.description}</p>
+                    <p className="text-sm text-gray-600 mb-4">
+                      {/* Clean HTML from description like on product pages */}
+                      {product.description
+                        ?.replace(/<\/?[^>]+(>|$)/g, '')  // Remove HTML tags
+                        .replace(/&lt;/g, '<')
+                        .replace(/&gt;/g, '>')
+                        .replace(/&amp;/g, '&')
+                        .replace(/&quot;/g, '"')
+                        .replace(/&#39;/g, "'")
+                        .replace(/&nbsp;/g, ' ')
+                        .replace(/&lt;\/?[^&]*&gt;/g, '') // Remove encoded HTML tags
+                        .replace(/\s+/g, ' ')
+                        .trim() || 'Premium Texas state pride apparel'
+                      }
+                    </p>
                     <div className="text-right">
                       <Link 
                         href={`/product/${product.slug || product.id}`}
