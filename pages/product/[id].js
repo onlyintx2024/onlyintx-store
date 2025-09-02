@@ -219,15 +219,19 @@ export default function ProductPage() {
             {product.description && (
               <div className="prose max-w-none">
                 <div className="text-gray-700">
-                  {/* Strip all HTML tags and show as plain text */}
-                  {product.description
-                    .replace(/<[^>]*>/g, '')  // Remove all HTML tags
-                    .replace(/&nbsp;/g, ' ')  // Replace &nbsp; with regular spaces
-                    .replace(/&amp;/g, '&')  // Replace &amp; with &
-                    .replace(/&lt;/g, '<')   // Replace &lt; with <
-                    .replace(/&gt;/g, '>')   // Replace &gt; with >
-                    .trim()                   // Remove extra whitespace
-                  }
+                  {/* Clean HTML and decode entities */}
+                  {(() => {
+                    // First decode HTML entities
+                    const tempDiv = document.createElement('div')
+                    tempDiv.innerHTML = product.description
+                    const decoded = tempDiv.textContent || tempDiv.innerText || ''
+                    
+                    // Then clean any remaining HTML tags and normalize whitespace
+                    return decoded
+                      .replace(/<[^>]*>/g, '')     // Remove HTML tags
+                      .replace(/\s+/g, ' ')        // Normalize whitespace
+                      .trim()                      // Remove leading/trailing whitespace
+                  })()}
                 </div>
               </div>
             )}
