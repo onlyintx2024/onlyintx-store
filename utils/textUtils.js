@@ -17,8 +17,8 @@ export function cleanHTML(htmlString) {
     .replace(/&ndash;/g, '–')      // En dash
     .replace(/&ldquo;/g, '"')      // Left double quote
     .replace(/&rdquo;/g, '"')      // Right double quote
-    .replace(/&lsquo;/g, ''')      // Left single quote
-    .replace(/&rsquo;/g, ''')      // Right single quote
+    .replace(/&lsquo;/g, "'")      // Left single quote
+    .replace(/&rsquo;/g, "'")      // Right single quote
     .replace(/&hellip;/g, '…')     // Ellipsis
     // Second pass: remove ALL HTML tags
     .replace(/<\/?[^>]+(>|$)/g, '')  // Standard HTML tags
