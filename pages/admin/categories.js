@@ -109,7 +109,7 @@ export default function ProductCategories() {
           <p className="text-gray-600">Assign products to categories to control where they appear on the site</p>
         </div>
         <button
-          onClick={loadCategories}
+          onClick={loadData}
           disabled={loading}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
         >
