@@ -365,7 +365,7 @@ export default function Home() {
         </div>
       </section>
       
-      {/* Latest Designs - Show different products or all if less than 8 */}
+      {/* Latest Designs - Show different products from Best Sellers */}
       {featuredProducts.length > 4 && (
         <section className="py-16 bg-gray-50">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -373,9 +373,25 @@ export default function Home() {
               Latest Designs
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {featuredProducts
-                .sort((a, b) => b.designOrder - a.designOrder) // Sort by design order (newest first)
-                .slice(0, 4).map((product) => (
+              {(() => {
+                // Get the products shown in Best Sellers section
+                const bestSellersProducts = featuredProducts.filter(product => product.unitsSold > 0).length > 0
+                  ? featuredProducts
+                      .filter(product => product.unitsSold > 0)
+                      .sort((a, b) => b.unitsSold - a.unitsSold)
+                      .slice(0, 4)
+                  : featuredProducts
+                      .sort((a, b) => a.designOrder - b.designOrder)
+                      .slice(0, 4)
+                
+                const bestSellersIds = bestSellersProducts.map(p => p.id)
+                
+                // Show newest designs that are NOT in Best Sellers
+                return featuredProducts
+                  .filter(product => !bestSellersIds.includes(product.id))
+                  .sort((a, b) => b.designOrder - a.designOrder)
+                  .slice(0, 4)
+              })().map((product) => (
                 <div key={`latest-${product.id}`} className="group">
                   <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     <Link href={`/product/${product.slug || product.id}`}>
