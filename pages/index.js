@@ -297,11 +297,12 @@ export default function Home() {
         </div>
       </section>
       
-      {/* Featured Products */}
+      
+      {/* Latest Designs */}
       <section className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
-            Best Selling Texas Gear
+            Latest Designs
           </h2>
           
           {loading ? (
@@ -315,27 +316,10 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {(() => {
-                console.log('DEBUG: All products with designOrder:', featuredProducts.map(p => ({id: p.id, name: p.name, designOrder: p.designOrder, unitsSold: p.unitsSold})))
-                
-                const productsWithSales = featuredProducts.filter(product => product.unitsSold > 0)
-                console.log('DEBUG: Products with sales:', productsWithSales.length)
-                
-                if (productsWithSales.length > 0) {
-                  // Show products with actual sales
-                  return productsWithSales
-                    .sort((a, b) => b.unitsSold - a.unitsSold) // Sort by units sold (highest first)
-                    .slice(0, 4)
-                } else {
-                  // Show OLDEST products (lowest designOrder numbers)
-                  const oldestProducts = featuredProducts
-                    .sort((a, b) => a.designOrder - b.designOrder) // Sort oldest first (1, 2, 3, 4...)
-                    .slice(0, 4)
-                  console.log('DEBUG: Oldest products for Best Sellers:', oldestProducts.map(p => ({name: p.name, designOrder: p.designOrder})))
-                  return oldestProducts
-                }
-              })().map((product) => (
-                <div key={product.id} className="group">
+              {featuredProducts
+                .sort((a, b) => b.designOrder - a.designOrder) // Show newest first
+                .slice(0, 8).map((product) => (
+                <div key={`latest-${product.id}`} className="group">
                   <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     <Link href={`/product/${product.slug || product.id}`}>
                       <div className="h-64 relative overflow-hidden cursor-pointer">
@@ -377,82 +361,6 @@ export default function Home() {
           )}
         </div>
       </section>
-      
-      {/* Latest Designs - Show different products from Best Sellers */}
-      {featuredProducts.length > 4 && (
-        <section className="py-16 bg-gray-50">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
-              Latest Designs
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {(() => {
-                // Get the exact same products shown in Best Sellers section
-                const productsWithSales = featuredProducts.filter(product => product.unitsSold > 0)
-                
-                const bestSellersProducts = productsWithSales.length > 0
-                  ? productsWithSales
-                      .sort((a, b) => b.unitsSold - a.unitsSold)
-                      .slice(0, 4)
-                  : featuredProducts
-                      .sort((a, b) => a.designOrder - b.designOrder) // OLDEST products
-                      .slice(0, 4)
-                
-                const bestSellersIds = bestSellersProducts.map(p => p.id)
-                console.log('DEBUG: Best Sellers IDs to exclude:', bestSellersIds)
-                
-                // Show newest designs that are NOT in Best Sellers
-                const latestProducts = featuredProducts
-                  .filter(product => !bestSellersIds.includes(product.id))
-                  .sort((a, b) => b.designOrder - a.designOrder) // NEWEST first
-                  .slice(0, 4)
-                
-                console.log('DEBUG: Latest Designs products:', latestProducts.map(p => ({name: p.name, designOrder: p.designOrder})))
-                return latestProducts
-              })().map((product) => (
-                <div key={`latest-${product.id}`} className="group">
-                  <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                    <Link href={`/product/${product.slug || product.id}`}>
-                      <div className="h-64 relative overflow-hidden cursor-pointer">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="w-full h-full object-contain bg-gray-100 group-hover:scale-105 transition-transform duration-300"
-                          onError={(e) => {
-                            console.log(`Thumbnail failed for ${product.name}, using fallback`);
-                            if (product.fallbackImage) {
-                              e.target.src = product.fallbackImage;
-                            } else {
-                              e.target.src = '/images/texas-default.jpg';
-                            }
-                          }}
-                        />
-                      </div>
-                    </Link>
-                    <div className="p-6">
-                      <Link href={`/product/${product.slug || product.id}`}>
-                        <h3 className="font-semibold text-gray-900 mb-2 cursor-pointer hover:text-texas-blue transition-colors">
-                          {product.name}
-                        </h3>
-                      </Link>
-                      <p className="text-sm text-gray-600 mb-3">{product.description}</p>
-                      <div className="text-right">
-                        <Link 
-                          href={`/product/${product.slug || product.id}`}
-                          className="bg-texas-red text-white px-4 py-2 rounded hover:bg-red-700 transition-colors duration-200 inline-block text-center"
-                        >
-                          View Product
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       
       {/* Why Choose Us */}
       <section className="py-16 bg-texas-blue text-white">
