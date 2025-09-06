@@ -315,13 +315,26 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {(featuredProducts.filter(product => product.unitsSold > 0).length > 0
-                ? featuredProducts
-                    .filter(product => product.unitsSold > 0) // Only show products with actual sales
+              {(() => {
+                console.log('DEBUG: All products with designOrder:', featuredProducts.map(p => ({id: p.id, name: p.name, designOrder: p.designOrder, unitsSold: p.unitsSold})))
+                
+                const productsWithSales = featuredProducts.filter(product => product.unitsSold > 0)
+                console.log('DEBUG: Products with sales:', productsWithSales.length)
+                
+                if (productsWithSales.length > 0) {
+                  // Show products with actual sales
+                  return productsWithSales
                     .sort((a, b) => b.unitsSold - a.unitsSold) // Sort by units sold (highest first)
-                : featuredProducts
-                    .sort((a, b) => a.designOrder - b.designOrder) // Fallback to OLDEST designs (first 4 made)
-              ).slice(0, 4).map((product) => (
+                    .slice(0, 4)
+                } else {
+                  // Show OLDEST products (lowest designOrder numbers)
+                  const oldestProducts = featuredProducts
+                    .sort((a, b) => a.designOrder - b.designOrder) // Sort oldest first (1, 2, 3, 4...)
+                    .slice(0, 4)
+                  console.log('DEBUG: Oldest products for Best Sellers:', oldestProducts.map(p => ({name: p.name, designOrder: p.designOrder})))
+                  return oldestProducts
+                }
+              })().map((product) => (
                 <div key={product.id} className="group">
                   <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     <Link href={`/product/${product.slug || product.id}`}>
@@ -374,23 +387,28 @@ export default function Home() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {(() => {
-                // Get the products shown in Best Sellers section
-                const bestSellersProducts = featuredProducts.filter(product => product.unitsSold > 0).length > 0
-                  ? featuredProducts
-                      .filter(product => product.unitsSold > 0)
+                // Get the exact same products shown in Best Sellers section
+                const productsWithSales = featuredProducts.filter(product => product.unitsSold > 0)
+                
+                const bestSellersProducts = productsWithSales.length > 0
+                  ? productsWithSales
                       .sort((a, b) => b.unitsSold - a.unitsSold)
                       .slice(0, 4)
                   : featuredProducts
-                      .sort((a, b) => a.designOrder - b.designOrder)
+                      .sort((a, b) => a.designOrder - b.designOrder) // OLDEST products
                       .slice(0, 4)
                 
                 const bestSellersIds = bestSellersProducts.map(p => p.id)
+                console.log('DEBUG: Best Sellers IDs to exclude:', bestSellersIds)
                 
                 // Show newest designs that are NOT in Best Sellers
-                return featuredProducts
+                const latestProducts = featuredProducts
                   .filter(product => !bestSellersIds.includes(product.id))
-                  .sort((a, b) => b.designOrder - a.designOrder)
+                  .sort((a, b) => b.designOrder - a.designOrder) // NEWEST first
                   .slice(0, 4)
+                
+                console.log('DEBUG: Latest Designs products:', latestProducts.map(p => ({name: p.name, designOrder: p.designOrder})))
+                return latestProducts
               })().map((product) => (
                 <div key={`latest-${product.id}`} className="group">
                   <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
