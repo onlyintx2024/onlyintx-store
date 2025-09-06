@@ -493,8 +493,8 @@ export default function Home() {
               <div className="w-16 h-16 bg-texas-gold rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-texas-blue">TX</span>
               </div>
-              <h3 className="text-xl font-semibold mb-4">100% Texas Made</h3>
-              <p className="text-gray-200">Designed and printed with Texas pride. Every design celebrates authentic Lone Star culture.</p>
+              <h3 className="text-xl font-semibold mb-4">100% Designed by Texans</h3>
+              <p className="text-gray-200">Every design created by authentic Texans who know and love the Lone Star culture.</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-texas-gold rounded-full flex items-center justify-center mx-auto mb-4">
