@@ -297,9 +297,81 @@ export default function Home() {
         </div>
       </section>
       
+      {/* Best Sellers */}
+      <section className="py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
+            Best Selling Texas Gear
+          </h2>
+          
+          {loading ? (
+            <div className="text-center">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-texas-blue"></div>
+              <p className="mt-2 text-gray-600">Loading products...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center text-red-600">
+              <p>Error loading products: {error}</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {featuredProducts
+                .filter(product => product.unitsSold > 0) // Only products with actual sales
+                .sort((a, b) => b.unitsSold - a.unitsSold) // Sort by sales (highest first)
+                .slice(0, 4).map((product) => (
+                <div key={product.id} className="group">
+                  <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                    <Link href={`/product/${product.slug || product.id}`}>
+                      <div className="h-64 relative overflow-hidden cursor-pointer">
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="w-full h-full object-contain bg-gray-100 group-hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            console.log(`Thumbnail failed for ${product.name}, using fallback`);
+                            if (product.fallbackImage) {
+                              e.target.src = product.fallbackImage;
+                            } else {
+                              e.target.src = '/images/texas-default.jpg';
+                            }
+                          }}
+                        />
+                      </div>
+                    </Link>
+                    <div className="p-6">
+                      <Link href={`/product/${product.slug || product.id}`}>
+                        <h3 className="font-semibold text-gray-900 mb-2 cursor-pointer hover:text-texas-blue transition-colors">
+                          {product.name} <span className="text-sm text-green-600">({product.unitsSold} sold)</span>
+                        </h3>
+                      </Link>
+                      <p className="text-sm text-gray-600 mb-3">{product.description}</p>
+                      <div className="text-right">
+                        <Link 
+                          href={`/product/${product.slug || product.id}`}
+                          className="bg-texas-red text-white px-4 py-2 rounded hover:bg-red-700 transition-colors duration-200 inline-block text-center"
+                        >
+                          View Product
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {/* Show message if no products with sales yet */}
+              {featuredProducts.filter(product => product.unitsSold > 0).length === 0 && (
+                <div className="col-span-full text-center text-gray-500 py-8">
+                  <p className="text-lg">No sales data yet - check back soon!</p>
+                  <p className="text-sm">Products will appear here once they start selling.</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
       
       {/* Latest Designs */}
-      <section className="py-16">
+      <section className="py-16 bg-gray-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
             Latest Designs
@@ -316,9 +388,21 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {featuredProducts
-                .sort((a, b) => b.designOrder - a.designOrder) // Show newest first
-                .slice(0, 8).map((product) => (
+              {(() => {
+                // Get products already shown in Best Sellers
+                const bestSellersProducts = featuredProducts
+                  .filter(product => product.unitsSold > 0)
+                  .sort((a, b) => b.unitsSold - a.unitsSold)
+                  .slice(0, 4)
+                  
+                const bestSellersIds = bestSellersProducts.map(p => p.id)
+                
+                // Show newest designs that are NOT in Best Sellers  
+                return featuredProducts
+                  .filter(product => !bestSellersIds.includes(product.id))
+                  .sort((a, b) => b.designOrder - a.designOrder) // Show newest first
+                  .slice(0, 4)
+              })().map((product) => (
                 <div key={`latest-${product.id}`} className="group">
                   <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     <Link href={`/product/${product.slug || product.id}`}>
