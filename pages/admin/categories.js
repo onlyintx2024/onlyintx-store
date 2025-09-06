@@ -108,13 +108,35 @@ export default function ProductCategories() {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Product Categories</h1>
           <p className="text-gray-600">Assign products to categories to control where they appear on the site</p>
         </div>
-        <button
-          onClick={loadData}
-          disabled={loading}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-        >
-          {loading ? 'Loading...' : 'Refresh'}
-        </button>
+        <div className="space-x-3">
+          <button
+            onClick={loadData}
+            disabled={loading}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          >
+            {loading ? 'Loading...' : 'Refresh'}
+          </button>
+          <button
+            onClick={async () => {
+              if (!confirm('Fix design orders based on Printify creation dates? This will update the Latest Designs sorting on homepage.')) return
+              try {
+                const response = await fetch('/api/admin/fix-design-orders', { method: 'POST' })
+                const data = await response.json()
+                if (response.ok) {
+                  alert(`✅ Success! Fixed design orders for ${data.totalProducts} products.\n\nOldest: ${data.oldestProduct}\nNewest: ${data.newestProduct}`)
+                  loadData() // Refresh the page
+                } else {
+                  alert(`❌ Error: ${data.error}`)
+                }
+              } catch (error) {
+                alert(`❌ Error: ${error.message}`)
+              }
+            }}
+            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+          >
+            Fix Latest Designs Sort
+          </button>
+        </div>
       </div>
 
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
