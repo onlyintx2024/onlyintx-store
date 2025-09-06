@@ -61,6 +61,11 @@ export default function ProductCategories() {
           ...prev,
           [productId]: newCategories
         }))
+        
+        // Show success feedback
+        console.log(`✅ Categories updated for product ${productId}:`, newCategories)
+      } else {
+        throw new Error('Failed to update categories')
       }
     } catch (error) {
       console.error('Error updating categories:', error)
@@ -98,9 +103,18 @@ export default function ProductCategories() {
         <title>Product Categories - Admin</title>
       </Head>
       
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Product Categories</h1>
-        <p className="text-gray-600">Assign products to categories to control where they appear on the site</p>
+      <div className="mb-8 flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Product Categories</h1>
+          <p className="text-gray-600">Assign products to categories to control where they appear on the site</p>
+        </div>
+        <button
+          onClick={loadCategories}
+          disabled={loading}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        >
+          {loading ? 'Loading...' : 'Refresh'}
+        </button>
       </div>
 
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
