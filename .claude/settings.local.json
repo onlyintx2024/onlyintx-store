@@ -5,7 +5,8 @@
       "Bash(npm run build:*)",
       "Bash(git add:*)",
       "WebFetch(domain:onlyintx.com)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(vercel env:*)"
     ],
     "deny": [],
     "ask": []
