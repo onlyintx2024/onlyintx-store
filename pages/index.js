@@ -315,10 +315,36 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {featuredProducts
-                .filter(product => product.unitsSold > 0) // Only products with actual sales
-                .sort((a, b) => b.unitsSold - a.unitsSold) // Sort by sales (highest first)
-                .slice(0, 4).map((product) => (
+              {(() => {
+                // Hard-code one product from each major category for Best Sellers
+                const bestSellersByCategory = []
+                const categories = ['houston', 'austin', 'dallas', 'san-antonio']
+                
+                for (const category of categories) {
+                  const categoryProduct = featuredProducts.find(product => 
+                    product.city?.toLowerCase().includes(category.replace('-', ' ')) ||
+                    (product.originalTitle && product.originalTitle.toLowerCase().includes(category.replace('-', ' ')))
+                  )
+                  if (categoryProduct) {
+                    bestSellersByCategory.push(categoryProduct)
+                  }
+                }
+                
+                // If we don't have 4 yet, fill with oldest products
+                while (bestSellersByCategory.length < 4 && bestSellersByCategory.length < featuredProducts.length) {
+                  const remaining = featuredProducts.filter(p => 
+                    !bestSellersByCategory.some(bs => bs.id === p.id)
+                  ).sort((a, b) => a.designOrder - b.designOrder)
+                  
+                  if (remaining.length > 0) {
+                    bestSellersByCategory.push(remaining[0])
+                  } else {
+                    break
+                  }
+                }
+                
+                return bestSellersByCategory.slice(0, 4)
+              })().map((product) => (
                 <div key={product.id} className="group">
                   <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     <Link href={`/product/${product.slug || product.id}`}>
@@ -341,7 +367,7 @@ export default function Home() {
                     <div className="p-6">
                       <Link href={`/product/${product.slug || product.id}`}>
                         <h3 className="font-semibold text-gray-900 mb-2 cursor-pointer hover:text-texas-blue transition-colors">
-                          {product.name} <span className="text-sm text-green-600">({product.unitsSold} sold)</span>
+                          {product.name}
                         </h3>
                       </Link>
                       <p className="text-sm text-gray-600 mb-3">{product.description}</p>
@@ -357,14 +383,6 @@ export default function Home() {
                   </div>
                 </div>
               ))}
-              
-              {/* Show message if no products with sales yet */}
-              {featuredProducts.filter(product => product.unitsSold > 0).length === 0 && (
-                <div className="col-span-full text-center text-gray-500 py-8">
-                  <p className="text-lg">No sales data yet - check back soon!</p>
-                  <p className="text-sm">Products will appear here once they start selling.</p>
-                </div>
-              )}
             </div>
           )}
         </div>
@@ -389,13 +407,33 @@ export default function Home() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {(() => {
-                // Get products already shown in Best Sellers
-                const bestSellersProducts = featuredProducts
-                  .filter(product => product.unitsSold > 0)
-                  .sort((a, b) => b.unitsSold - a.unitsSold)
-                  .slice(0, 4)
+                // Get the same hard-coded Best Sellers products to exclude
+                const bestSellersByCategory = []
+                const categories = ['houston', 'austin', 'dallas', 'san-antonio']
+                
+                for (const category of categories) {
+                  const categoryProduct = featuredProducts.find(product => 
+                    product.city?.toLowerCase().includes(category.replace('-', ' ')) ||
+                    (product.originalTitle && product.originalTitle.toLowerCase().includes(category.replace('-', ' ')))
+                  )
+                  if (categoryProduct) {
+                    bestSellersByCategory.push(categoryProduct)
+                  }
+                }
+                
+                while (bestSellersByCategory.length < 4 && bestSellersByCategory.length < featuredProducts.length) {
+                  const remaining = featuredProducts.filter(p => 
+                    !bestSellersByCategory.some(bs => bs.id === p.id)
+                  ).sort((a, b) => a.designOrder - b.designOrder)
                   
-                const bestSellersIds = bestSellersProducts.map(p => p.id)
+                  if (remaining.length > 0) {
+                    bestSellersByCategory.push(remaining[0])
+                  } else {
+                    break
+                  }
+                }
+                
+                const bestSellersIds = bestSellersByCategory.map(p => p.id)
                 
                 // Show newest designs that are NOT in Best Sellers  
                 return featuredProducts
