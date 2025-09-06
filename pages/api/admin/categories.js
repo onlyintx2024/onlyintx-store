@@ -68,14 +68,17 @@ export default async function handler(req, res) {
     }
     
     try {
+      console.log(`🔧 UPDATING CATEGORIES: Product ${productId} -> ${JSON.stringify(categories)}`)
       const updatedMetadata = updateProductCategoriesServer(productId, categories)
+      console.log(`✅ CATEGORIES SAVED: ${JSON.stringify(updatedMetadata)}`)
+      
       return res.status(200).json({ 
         success: true, 
         metadata: updatedMetadata 
       })
     } catch (error) {
-      console.error('Error updating categories:', error)
-      return res.status(500).json({ error: 'Failed to update categories' })
+      console.error('❌ ERROR updating categories:', error)
+      return res.status(500).json({ error: 'Failed to update categories', details: error.message })
     }
   }
   
