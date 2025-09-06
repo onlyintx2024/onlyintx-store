@@ -13,6 +13,7 @@ export default function AdminProducts() {
     basePrice: 32.00,
     profitMargin: 20.00
   })
+  const [creatingFolders, setCreatingFolders] = useState(false)
   
   const cities = ['Austin', 'Dallas', 'Houston', 'San Antonio', 'Fort Worth', 'El Paso', 'Arlington', 'Plano', 'Lubbock', 'Amarillo']
   
@@ -197,6 +198,51 @@ const getLowestVariantPrice = (variants) => {
     }
   }
 
+  const createMockupFolders = async () => {
+    if (!confirm('Create mockup folders for all products that don\'t have them?')) return
+
+    try {
+      setCreatingFolders(true)
+      const response = await fetch('/api/admin/create-mockup-folders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        let message = `✅ Success! Created ${data.newFolders} new mockup folders.\n\n`
+        
+        if (data.createdFolders.length > 0) {
+          message += 'New folders created:\n'
+          data.createdFolders.forEach(folder => {
+            message += `• ${folder.folderName} - ${folder.productName}\n`
+          })
+        }
+        
+        if (data.errors.length > 0) {
+          message += '\n⚠️ Errors:\n'
+          data.errors.forEach(error => {
+            message += `• ${error.productName}: ${error.error}\n`
+          })
+        }
+
+        message += `\n📊 Total: ${data.totalProducts} products, ${data.existingFolders} existing folders, ${data.newFolders} created`
+        
+        alert(message)
+      } else {
+        throw new Error(data.error || 'Failed to create folders')
+      }
+    } catch (error) {
+      console.error('Error creating mockup folders:', error)
+      alert(`❌ Error creating mockup folders: ${error.message}`)
+    } finally {
+      setCreatingFolders(false)
+    }
+  }
+
   if (loading) {
     return (
       <AdminLayout>
@@ -241,6 +287,14 @@ const getLowestVariantPrice = (variants) => {
             >
               <ArrowPathIcon className={`h-5 w-5 ${refreshing ? 'animate-spin' : ''}`} />
               <span>Refresh</span>
+            </button>
+            <button
+              onClick={createMockupFolders}
+              disabled={creatingFolders}
+              className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-green-700 transition-colors disabled:opacity-50"
+            >
+              <span className={`text-lg ${creatingFolders ? 'animate-pulse' : ''}`}>📁</span>
+              <span>{creatingFolders ? 'Creating...' : 'Auto-Create Mockup Folders'}</span>
             </button>
             <button
               onClick={() => setShowAddForm(true)}
