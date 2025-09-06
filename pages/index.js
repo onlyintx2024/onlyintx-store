@@ -149,37 +149,46 @@ export default function Home() {
     return Math.min(...enabledVariants.map(v => v.price))
   }
 
-  // Fetch products from API
+  // Fetch products from API using category system
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         console.log('Fetching products from API...')
         setLoading(true)
-        const response = await fetch('/api/printify/products')
         
-        if (!response.ok) {
-          throw new Error(`Failed to fetch products: ${response.status}`)
+        // Fetch categories and products simultaneously (same as Texas page)
+        const [categoriesResponse, productsResponse] = await Promise.all([
+          fetch('/api/admin/categories'),
+          fetch('/api/printify/products')
+        ])
+        
+        if (!categoriesResponse.ok || !productsResponse.ok) {
+          throw new Error('Failed to fetch products or categories')
         }
         
-        const data = await response.json()
-        console.log('API Response data:', data)
+        const categoriesData = await categoriesResponse.json()
+        const productsData = await productsResponse.json()
         
-        if (data.products && data.products.length > 0) {
-          // Import metadata functions
-          const { getProductMetadata, assignDesignOrderToNewProduct } = await import('../lib/productMetadata')
+        console.log('API Response data:', productsData)
+        console.log('Categories data:', categoriesData)
+        
+        if (productsData.products && productsData.products.length > 0) {
+          // Only show products that have been assigned to at least one category
+          const categorizedProducts = productsData.products.filter(product => {
+            const metadata = categoriesData.products[product.id]
+            const hasCategories = metadata?.categories && metadata.categories.length > 0
+            console.log(`Product "${product.title}" has categories?`, hasCategories, metadata?.categories)
+            return hasCategories
+          })
           
-          // Add metadata to products and auto-assign to new ones
-          const productsWithMetadata = data.products.map(product => {
-            let metadata = getProductMetadata(product.id)
-            if (!metadata) {
-              // Auto-assign design order to new products
-              metadata = assignDesignOrderToNewProduct(product.id)
-            }
+          // Add metadata for sorting
+          const productsWithMetadata = categorizedProducts.map(product => {
+            const metadata = categoriesData.products[product.id]
             
             return {
               ...product,
-              designOrder: metadata.designOrder,
-              unitsSold: metadata.unitsSold
+              designOrder: metadata.designOrder || 0,
+              unitsSold: metadata.unitsSold || 0
             }
           })
           

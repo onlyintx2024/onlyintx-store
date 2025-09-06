@@ -77,26 +77,33 @@ export default function CityPage({ city }) {
   const [loading, setLoading] = useState(true)
   const { dispatch } = useCart()
 
-  // Load products from Printify filtered by city
+  // Load products from Printify filtered by city categories
   useEffect(() => {
   const loadCityProducts = async () => {
     try {
       console.log('Loading products for city:', city.name)
-      const response = await fetch(`/api/printify/products?t=${Date.now()}`)
-      const data = await response.json()
       
-      console.log('API Response:', data)
-      console.log('Total products from API:', data.products?.length)
+      // Fetch categories and products simultaneously
+      const [categoriesResponse, productsResponse] = await Promise.all([
+        fetch('/api/admin/categories'),
+        fetch(`/api/printify/products?t=${Date.now()}`)
+      ])
       
-      if (response.ok) {
-        // Log all product titles to see what we're working with
-        console.log('All product titles:', data.products.map(p => p.title))
-        
-        // Filter products for this city
-        const cityProducts = data.products.filter(product => {
-          const matches = product.title.toLowerCase().includes(city.name.toLowerCase())
-          console.log(`Product "${product.title}" matches "${city.name}"?`, matches)
-          return matches
+      const categoriesData = await categoriesResponse.json()
+      const productsData = await productsResponse.json()
+      
+      console.log('API Response:', productsData)
+      console.log('Categories Data:', categoriesData)
+      console.log('Total products from API:', productsData.products?.length)
+      
+      if (categoriesResponse.ok && productsResponse.ok) {
+        // Filter products by category system (same as Texas page)
+        const citySlug = city.slug // e.g., 'austin', 'dallas', etc.
+        const cityProducts = productsData.products.filter(product => {
+          const metadata = categoriesData.products[product.id]
+          const hasCategory = metadata?.categories?.includes(citySlug) || false
+          console.log(`Product "${product.title}" categorized for "${citySlug}"?`, hasCategory)
+          return hasCategory
         }).map(product => {
           // Get the first available color from enabled variants for thumbnail
           const enabledVariants = product.variants.filter(v => v.is_enabled);
@@ -118,7 +125,7 @@ export default function CityPage({ city }) {
           };
         })
         
-        console.log('Filtered city products:', cityProducts)
+        console.log('Filtered city products by categories:', cityProducts)
         setProducts(cityProducts)
       }
     } catch (error) {
