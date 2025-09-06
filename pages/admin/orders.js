@@ -35,32 +35,6 @@ export default function AdminOrders() {
     }
   };
 
-  const handleStatusUpdate = async (orderId, newStatus) => {
-    try {
-      const response = await fetch('/api/orders', {
-        method: 'PUT',
-        credentials: 'include', // Include cookies for authentication
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          orderId,
-          updates: { status: newStatus }
-        })
-      });
-
-      if (response.ok) {
-        setOrders(orders.map(order => 
-          order.id === orderId 
-            ? { ...order, status: newStatus }
-            : order
-        ));
-      }
-    } catch (err) {
-      console.error('Error updating order status:', err);
-      alert('Failed to update order status');
-    }
-  };
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -184,31 +158,7 @@ export default function AdminOrders() {
                       </div>
                     </div>
 
-                    <div className="ml-4 flex flex-col space-y-2">
-                      {order.status === 'paid' && (
-                        <button
-                          onClick={() => handleStatusUpdate(order.id, 'processing')}
-                          className="bg-yellow-600 text-white px-3 py-1 rounded-md text-sm hover:bg-yellow-700"
-                        >
-                          Mark Processing
-                        </button>
-                      )}
-                      {order.status === 'processing' && (
-                        <button
-                          onClick={() => handleStatusUpdate(order.id, 'shipped')}
-                          className="bg-blue-600 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-700"
-                        >
-                          Mark Shipped
-                        </button>
-                      )}
-                      {order.status === 'shipped' && (
-                        <button
-                          onClick={() => handleStatusUpdate(order.id, 'completed')}
-                          className="bg-green-600 text-white px-3 py-1 rounded-md text-sm hover:bg-green-700"
-                        >
-                          Mark Completed
-                        </button>
-                      )}
+                    <div className="ml-4">
                       <button 
                         onClick={() => alert(`Order Details:\nID: ${order.id}\nCustomer: ${order.customer?.name || 'N/A'}\nEmail: ${order.customer?.email || 'N/A'}\nAmount: $${typeof order.amount === 'number' ? order.amount.toFixed(2) : '0.00'}\nStatus: ${order.status || 'Unknown'}\nPayment ID: ${order.paymentId || 'N/A'}\nCreated: ${formatDate(order.createdAt)}`)}
                         className="bg-gray-100 text-gray-700 px-3 py-1 rounded-md text-sm hover:bg-gray-200"
