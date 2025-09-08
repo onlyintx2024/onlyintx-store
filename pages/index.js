@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { useCart } from '../context/CartContext'
 import { getColorMockupImage } from '../utils/mockupMapping'
+import { cleanHTML } from '../utils/textUtils'
 
 export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState([])
@@ -70,63 +71,6 @@ export default function Home() {
     })
   }
 
-  // SEO Title Generator (same as before)
-  const generateSEOTitle = (printifyTitle, cityName = 'Texas') => {
-    const title = printifyTitle.toLowerCase()
-    
-    if (title.includes('saucy')) {
-      return `${cityName} Foodie T-Shirt - Saucy Tee`
-    }
-    if (title.includes('guitar') || title.includes('music')) {
-      return `${cityName} Music Lover T-Shirt - Guitar Design`
-    }
-    if (title.includes('alamo')) {
-      return `San Antonio Alamo T-Shirt - Remember Texas`
-    }
-    if (title.includes('big d') || title.includes('energy')) {
-      return `Dallas Big D Energy T-Shirt - Texas Pride`
-    }
-    if (title.includes('skyline')) {
-      return `${cityName} Skyline T-Shirt - City Pride`
-    }
-    
-    return `${cityName} T-Shirt - Local Texas Pride`
-  }
-
-  // SEO Description Generator (same as before)
-  const generateSEODescription = (productName, cityName = 'Texas') => {
-    const name = productName.toLowerCase()
-    
-    const patterns = {
-      food: ['saucy', 'bbq', 'taco', 'food', 'eat', 'kitchen', 'chef', 'restaurant'],
-      music: ['guitar', 'music', 'sound', 'beat', 'rhythm', 'concert', 'band'],
-      landmarks: ['alamo', 'skyline', 'downtown', 'bridge', 'tower', 'capitol'],
-      sports: ['team', 'football', 'baseball', 'basketball', 'soccer', 'sports'],
-      culture: ['keep', 'weird', 'local', 'native', 'born', 'raised', 'culture'],
-      vintage: ['vintage', 'retro', 'classic', 'throwback', 'old school']
-    }
-    
-    for (const [category, keywords] of Object.entries(patterns)) {
-      if (keywords.some(keyword => name.includes(keyword))) {
-        switch(category) {
-          case 'food':
-            return `Celebrate ${cityName}'s incredible food scene with this foodie-inspired tee.`
-          case 'music':
-            return `Show your love for ${cityName}'s legendary music scene.`
-          case 'landmarks':
-            return `Iconic ${cityName} landmarks on a premium t-shirt.`
-          case 'sports':
-            return `Rep your ${cityName} team spirit with this sports-inspired tee.`
-          case 'culture':
-            return `Authentic ${cityName} culture shirt for true locals.`
-          case 'vintage':
-            return `Vintage-inspired ${cityName} design with retro appeal.`
-        }
-      }
-    }
-    
-    return `Premium ${cityName} t-shirt with unique local design. Show your Texas pride!`
-  }
 
   // Get city from product
   const getCityFromProduct = (product) => {
@@ -210,8 +154,8 @@ export default function Home() {
             return {
               id: product.id,
               slug: product.slug,
-              name: generateSEOTitle(product.title, cityName),
-              description: generateSEODescription(product.title, cityName),
+              name: product.title, // Use actual Printify title
+              description: cleanHTML(product.description), // Use actual Printify description, cleaned
               price: getProductPrice(product.variants),
               image: customMockupImage,
               fallbackImage: product.images?.[0]?.src || null,
