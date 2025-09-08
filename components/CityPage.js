@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useCart } from '../context/CartContext'
 import { getColorMockupImage } from '../utils/mockupMapping'
+import { cleanHTML } from '../utils/textUtils'
 const generateSEOTitle = (printifyTitle, cityName) => {
   const title = printifyTitle.toLowerCase()
   
@@ -113,10 +114,10 @@ export default function CityPage({ city }) {
           return {
             id: product.id,
             slug: product.slug,
-            name: generateSEOTitle(product.title, city.name),
+            name: product.title, // Use actual Printify title
             printifyTitle: product.title,
             price: getLowestVariantPrice(product.variants),
-            description: getProductDescription(product, city.name),
+            description: cleanHTML(product.description), // Use actual Printify description, cleaned
             image: getColorMockupImage(product.id, firstColor, 'thumb'),
             fallbackImage: product.images?.[0]?.src || '/images/texas-default.jpg',
             variants: product.variants.filter(v => v.is_enabled),
