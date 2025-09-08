@@ -97,7 +97,7 @@ export default function Home() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        console.log('Fetching products from API...')
+        console.log('Fetching products from API... (using real Printify titles)')
         setLoading(true)
         
         // Fetch categories and products simultaneously (same as Texas page)
